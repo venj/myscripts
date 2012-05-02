@@ -1,9 +1,11 @@
 My Scripts
 ==========
 
-This is my daily scripts. Only usable on a mac.
+These are my daily scripts with a command wrapper to avoid naming conflict with system and 3rd-party commands. 
 
-Very sluppy, maybe **only** useful to me.
+Only usable on a mac.
+
+Very sluppy, maybe **ONLY** useful to me.
 
 Usage
 =====
@@ -12,5 +14,4 @@ Usage
 2. enter `my` on your command line for help
 3. read scripts in `/usr/local/bin/myscripts` for individual script function.
 
-ps. Some script have help message.
-
+ps. Some scripts have help messages.
