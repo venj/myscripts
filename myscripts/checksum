@@ -1,0 +1,12 @@
+#!/usr/bin/env ruby
+(puts "Usage: my #{File.basename $0} file1 [...]" ; exit 1) if ARGV.size < 1
+
+ARGV.each do |f|
+  (puts "#{f} does not exists"; next) unless File.exist?(f)
+  system("md5 #{f}")
+  system("shasum #{f}")
+  system("shasum -a 224 #{f}")
+  system("shasum -a 256 #{f}")
+  system("shasum -a 384 #{f}")
+  system("shasum -a 512 #{f}")
+end

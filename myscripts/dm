@@ -1,0 +1,88 @@
+#!/usr/bin/env ruby
+# encoding=utf-8
+
+#
+# Usage: ruby down_manga.rb folder_to_hold_manga image_index_url
+# folder_to_hold_manga is a non-existing folder in current directory to save images.
+# image_index_url is the index for manga, like: http://manhua.178.com/wangxiangxueshenghui/
+#
+# Need ruby 1.9 and hpricot gem.
+#
+
+major, subver, minor = RUBY_VERSION.split('.')
+
+if major < '2' && subver < '9'
+  puts "You need ruby 1.9 and up to run this command"
+  exit 1
+end
+
+require 'open-uri'
+require 'hpricot'
+require 'fileutils'
+
+image_base = "http://manhua.178.com/imgs/"
+if ARGV.size != 2 || ARGV[1].index("http://") != 0
+  puts "Usage: my #{File.basename $0} FOLDER_NAME WEB_URL"
+  puts "FOLDER_NAME is a non-existing folder in current directory to save images."
+  puts "WEB_URL is the index for manga, like: http://manhua.178.com/wangxiangxueshenghui/"
+  exit 1
+elsif File.exists?(ARGV[0])
+  puts "#{ARGV[0]} exists, please use another folder name."
+  exit 1
+else
+  if FileUtils.mkdir(ARGV[0])
+    main_uri = ARGV[1]
+    main_uri += '/' unless (main_uri.rindex('/') + 1) == main_uri.size
+    FileUtils.cd(ARGV[0])
+    begin
+      doc = Hpricot(open main_uri)
+    rescue OpenURI::HTTPError => e
+      puts "Failed to open web uri.", e.message
+      exit 1
+    rescue StandardError => e
+      puts "Unknown error.", e.message
+      exit 1
+    end
+    vol_uri = []
+
+    doc.search('//.cartoon_online_border/ul/li/a').each do |link|
+      vol_uri << [link.inner_text, main_uri + File.basename(link['href'])]
+    end
+    
+    main_dir = FileUtils.pwd
+    
+    vol_uri.each do |dir, uri|
+      puts
+      puts "Downloading #{dir}"
+      puts
+      
+      # Goto sub folder
+      FileUtils.mkdir(dir)
+      FileUtils.cd(dir)
+      page = (open uri).read
+      page.scan(/g_max_pic_count\s*=\s*(\d+)/)
+      image_count = $1
+      page.scan(/var\s+pages\s*=\s*'\[([^\]]+)\]'/)
+      raw_str = $1
+      raw_str.split(",").each do |str|
+        next if str.nil?
+        str.strip!
+        next if str.size < 1
+        part = str.gsub(/\\u(\h{4})/) {
+          [$1.to_i(16)].pack('U')
+        }.gsub(/(\\|")/, '')
+        print "Downloading #{File.basename(part)}.."
+        if system("wget", '-q', image_base + part)
+          puts "Done!"
+        else
+          puts "Failed!\nFailed to download #{File.basename(part)} in #{dir}\n"
+        end
+      end
+      # Go back to main folder
+      FileUtils.cd(main_dir)
+    end
+  else
+    puts "Error make directory in current diretory. \nDoes this directory writable?"
+    exit 1
+  end
+end

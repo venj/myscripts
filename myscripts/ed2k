@@ -1,0 +1,15 @@
+#!/usr/bin/env ruby
+require "open-uri"
+
+(puts "Usage: my #{File.basename $0} link [...]" ; exit 1) if ARGV.size < 1
+argv = ARGV
+down = (argv[0].downcase == "-d") ? true : false
+argv.shift if down
+argv.each do |f|
+  open f do |t|
+    t.read.scan(/href="(ed2k:\/\/[^"]+)"/) do |m|
+      puts m
+      system "open \"#{m[0]}\"" if down
+    end
+  end
+end

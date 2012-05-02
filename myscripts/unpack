@@ -1,0 +1,33 @@
+#!/usr/bin/env ruby
+require "fileutils"
+
+PUBS = ["Oreilly", "Microsoft Publication", "Sitepoint", "Apress", "Simon Schuster",
+        "Wiley", "Wrox", "For Dummies", "Springer", "Manning", "Smashing", "Sybex", 
+        "Addison Wesley", "No Starch", "Pragmtic", "FriendsofED", "Peachpit Press", 
+        "Peachpit", "Adobe Press", "McGraw Hill", "Packtpub", "New Riders", "Course", 
+        "php architects", "Rockable Press", "Prentice Hall", "QUE", "Sams", "Pragmatic"]
+
+def normalize(name)
+  n = name.gsub(/\w{3,4}\.[0-9]{4}$/, "").gsub(/\.\w+\.Edition/i, "").gsub(/[^[:alnum:]]/, " ")
+  PUBS.each do |p|
+    r = Regexp.new(p, true)
+    next unless r.match(n)
+    return n.gsub(r, "").strip
+  end
+  n
+end
+
+ARGV.size > 0 ? folder = ARGV[0] : folder = FileUtils.pwd
+
+FileUtils.cd folder do
+  Dir.glob("*.{pdf,epub,mobi}").each do |f|
+    extname = File.extname f
+    name = normalize(File.basename(f).sub(extname, ""))
+    FileUtils.mv(f, name + extname) unless (f == (name + extname))
+  end
+
+  Dir["*.rar"].each do |f|
+    name = normalize(File.basename(f, ".rar"))
+    system %[my rename #{f} "#{name}"]
+  end
+end

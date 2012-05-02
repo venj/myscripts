@@ -1,0 +1,13 @@
+#!/usr/bin/env ruby
+
+def usage
+  puts "Usage: my #{File.basename(__FILE__)} SIZE NAME"
+  exit 0
+end
+
+usage if ARGV[0].nil?
+
+usage if ARGV.size != 2
+usage if ARGV[0].to_i <= 0
+
+system("diskutil erasevolume HFS+ \"#{ARGV[1]}\" `hdiutil attach -nomount ram://#{2000000 * ARGV[0].to_i}`")

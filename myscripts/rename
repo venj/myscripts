@@ -1,0 +1,35 @@
+#!/usr/bin/env ruby
+require "fileutils"
+include FileUtils
+
+(puts "Usage: #{File.basename($0)} rar_name book_name";exit 0) if ARGV.size < 2
+(puts "\"unrar\" is not found on your system."; exit 1) unless system("which unrar > /dev/null 2>&1")
+pack_name = ARGV[0];book_name = ARGV[1..-1].join(" ")
+(puts "\"#{pack_name}\" does not exist."; exit 1) unless File.exist?(pack_name)
+
+begin
+  current_dir = pwd
+  mkdir(book_name)
+  system %|unrar x #{pack_name} "#{book_name}"|
+  cd book_name
+  rm "Readme.png"
+  files = Dir["**/*"].to_a
+  if files.size == 1
+    f = files.first
+    extension = f.split('.').last
+    new_name = %|#{book_name}.#{extension}|
+    mv f, new_name
+    mv new_name, current_dir
+    cd current_dir
+    rmdir book_name
+  else
+    files.each do |f|
+      extension = f.split('.').last
+      mv f, %|#{book_name}.#{extension}|
+    end
+    cd current_dir
+  end
+  puts "\nExtract and Rename Finished."
+rescue Exception => e
+  puts "Error: #{e.message}"
+end

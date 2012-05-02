@@ -1,0 +1,14 @@
+#!/usr/bin/env ruby
+require "FileUtils"
+include FileUtils
+
+LX_HOME = "/usr/local/bin/xunlei-lixian"
+
+if ["update", "--update", "-u"].index(ARGV[0])
+  cd LX_HOME do
+    system("git pull")
+  end
+  exit(0)
+else
+  system("python #{LX_HOME}/lixian_cli.py #{ARGV.join(" ")}")
+end

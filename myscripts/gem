@@ -1,0 +1,7 @@
+#!/usr/bin/env ruby
+
+if ARGV[0] == "install"
+  system("gem #{ARGV.join(' ')} --no-rdoc --no-ri")
+else
+  system("gem #{ARGV.join(' ')}")
+end

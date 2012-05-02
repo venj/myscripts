@@ -1,0 +1,58 @@
+#!/bin/sh
+
+myscript_dir=/usr/local/bin/myscripts
+
+if [ $# -lt 1 ]; then
+    echo "Usage:  $(basename $0) command_name [options]"
+    echo "Help: "
+    echo "\t list  (l)   --  show all available commands"
+    echo "\t -     ll    --  show all available commands, long format"
+    echo "\t -     la    --  show all available commands, full format"
+    echo "\t edit  (e)   --  edit my script"
+    echo "\twhich  (w)   --  show script path"
+    echo "\tchmodx (x)   --  make script executable"
+    exit 0
+else
+    cmd=$1
+    shift 1
+    if [ "$cmd" == "list" ] || [ "$cmd" == "l" ] ; then
+        ls -G $myscript_dir
+    elif [ "$cmd" == "ll" ] ; then
+        ls -lG $myscript_dir
+    elif [ "$cmd" == "la" ] || [ "$cmd" == "al" ] ; then
+        ls -laG $myscript_dir
+    elif [ "$cmd" == "edit" ] || [ "$cmd" == "e" ] ; then
+        if [ $# -eq 0 ]; then
+            mate /usr/local/bin/my
+        else
+            for script in $*;do
+                mate $myscript_dir/$script
+            done
+            unset script
+        fi
+    elif [ "$cmd" == "which" ] || [ "$cmd" == "w" ]; then
+        for script in $*;do
+            filename=$myscript_dir/$script
+            if [ -e $filename ]; then
+                echo $filename
+            fi
+        done
+        unset script
+    elif [ "$cmd" == "chmodx" ] || [ "$cmd" == "x" ]; then
+        for script in $*;do
+            filename=$myscript_dir/$script
+            if [ -e $filename ]; then
+                chmod +x $filename
+            fi
+        done
+        unset script
+    else
+        if [ $# -lt 1 ]; then
+            $myscript_dir/$cmd
+        else
+            $myscript_dir/$cmd "$@"
+        fi
+    fi
+fi
+
+unset myscript_dir

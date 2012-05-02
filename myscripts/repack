@@ -1,0 +1,68 @@
+#!/usr/bin/env ruby
+require "fileutils"
+include FileUtils
+
+ERROR = 255
+
+def repack(book, tmpdir)
+  book_name = File.basename(book, ".epub")
+  system(%|unzip "#{book}" -d #{tmpdir} > /dev/null 2>&1|)
+  cd(tmpdir) do
+    dirs = Dir["*"].delete_if {|f| !File.directory?(f) }
+    # If no directory found! Just stop repack.
+    if dirs.size == 0
+      puts "\nFailed to repack \"#{book}\": Unknown Error!!!"
+      return ERROR
+    end
+    # If more than one directory found.
+    if dirs.size > 2
+      puts "\nFailed to repack \"#{book}\": Ambiguious ePub file structure."
+      return ERROR
+    end
+    dirs.delete("META-INF");dirs.delete("meta-inf") # delete the meta-inf.
+    cd dirs[0] do
+      covers = Dir["*"].delete_if{ |f| !f.match(/.*cover.*\.(jpg|png|gif)/i) }
+      if covers.size == 0
+        # If no cover found in root directory, try image directory.
+        image_dir = []
+        image_dir = Dir["*"].delete_if{ |f| !(f.match(/image|img/i) && File.directory?(f))}[0]
+        if image_dir.size == 0
+          puts "\nFailed to repack \"#{book}\": Image directory not found."
+          return ERROR
+        else
+          covers = Dir["#{image_dir}/*"].delete_if { |f| !f.match(/.*cover.*\.(jpg|png|gif)/i) }
+          if covers.size == 0
+            puts "\nFailed to repack \"#{book}\": Cover Image not found."
+            return ERROR
+          end
+        end
+      end
+      if covers.size == 0
+        puts "\nFailed to repack \"#{book}\": Cover Image not found."
+        return ERROR
+      end
+      cover = covers[0] # Just pick up the first one as cover.
+      cp cover, "../iTunesArtwork"
+    end
+    # Back to tmpdir and repack
+    system(%|zip -Xr9D ../"#{book_name}_repack.epub" mimetype * > /dev/null 2>&1|)
+  end
+  rm_rf(tmpdir)
+end
+
+# Do the repack
+books = ARGV.size < 1 ? Dir["*.epub"] : ARGV
+if books.size < 1
+  puts "No ePub files found!"
+  exit 1
+end
+
+books.each do |b|
+  tmpdir = "tmpdir_#{Time.now.to_i}"
+  print %|Processing "#{b}"...|
+  if repack(b, tmpdir) != ERROR
+    puts "Done!"
+  else
+    rm_rf(tmpdir)
+  end
+end

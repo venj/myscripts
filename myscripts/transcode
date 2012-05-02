@@ -1,0 +1,34 @@
+#!/bin/bash
+
+usage() {
+    echo Usage: my `basename $0` from_encoding to_encoding file_or_dir_to_transcode
+}
+
+if [ $# -ne 1 ]; then
+    usage
+    exit 1
+fi
+
+from=`echo $1 | cut -d ' ' -f 1`
+to=`echo $1 | cut -d ' ' -f 2`
+target=`echo $1 | cut -d ' ' -f 3`
+
+if [ -d $target ]; then
+    wd=`pwd`
+    cd "$target"
+    for file in `ls -1`; do
+        filename=${file%.*}
+        iconv -f $from -t $to ${filename}.txt > ${filename}_${to}.txt
+        rm ${filename}.txt
+    done
+    cd "$wd"
+elif [ -f $target ]; then
+    filename=${target%.*}
+    iconv -f $from -t $to ${filename}.txt > ${filename}_${to}.txt
+    #rm $target  # Comment out this to keep original file
+else
+    usage
+    exit 0
+fi
+
+unset from to target

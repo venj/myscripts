@@ -1,0 +1,3 @@
+#!/bin/sh
+defaults write com.flyingmeat.Acorn px30LaunchDate  -date `TZ=UTC date "+%Y-%m-%dT%H:%M:%SZ"` 2> /dev/null
+defaults delete com.snippetsapp.Snippets 2> /dev/null

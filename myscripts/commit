@@ -1,0 +1,12 @@
+#!/usr/bin/env ruby 
+
+(puts "Not a git repository."; exit 1) unless File.exists?(".git")
+(puts "Usage: my #{File.basename(__FILE__)} [-p] Commit message without quote.";exit 0) if ARGV[0] == "-h"
+
+remote = `git remote`
+need_commit = (`git status`).index("nothing to commit").nil?
+need_push_to_remote = (ARGV[0] == "-p") && (remote != "")
+need_shift_args = (ARGV[0] == "-p")
+init_number = (need_shift_args ? 1 : 0)
+system("git add .;git commit -am \"#{ARGV[init_number..(ARGV.size)].join(' ')}\"") 
+system("git push origin master") if need_push_to_remote

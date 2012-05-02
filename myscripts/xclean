@@ -1,0 +1,7 @@
+#!/bin/sh
+rm -r ~/Library/Application\ Support/iPhone\ Simulator/5.1/Applications
+mkdir ~/Library/Application\ Support/iPhone\ Simulator/5.1/Applications
+rm -r ~/Library/Application\ Support/iPhone\ Simulator/4.3.2/Applications
+mkdir ~/Library/Application\ Support/iPhone\ Simulator/4.3.2/Applications
+rm -r ~/Library/Developer/Xcode/DerivedData 
+mkdir ~/Library/Developer/Xcode/DerivedData

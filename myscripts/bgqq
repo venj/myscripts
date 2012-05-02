@@ -1,0 +1,2 @@
+#!/bin/sh
+defaults write /Applications/QQ.app/Contents/Info LSUIElement -bool YES
