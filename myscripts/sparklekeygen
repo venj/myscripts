@@ -1,4 +1,5 @@
 #!/usr/bin/ruby
+# Sparkle keygen
 ["dsaparam.pem", "dsa_priv.pem", "dsa_pub.pem"].each do |file|
   if File.exist? file
     puts "There's already a #{file} here! Move it aside or be more careful!"
