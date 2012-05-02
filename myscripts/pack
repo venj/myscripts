@@ -1,4 +1,6 @@
 #!/usr/bin/env ruby
+# Pack git repo into a zip archive for sharing.
+
 require "fileutils"
 include FileUtils
 

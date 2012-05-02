@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+# Make ramdisk with specific size.
 
 def usage
   puts "Usage: my #{File.basename(__FILE__)} SIZE NAME"

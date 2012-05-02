@@ -1,4 +1,7 @@
 #!/usr/bin/env ruby
+# Unpack or/and rename zip archive and/or ebook to a user specified name.
+# This script is used by "unpack"
+
 require "fileutils"
 include FileUtils
 

@@ -1,4 +1,5 @@
 #!/bin/bash
+# Change encoding for text files. (Save you some typing.)
 
 usage() {
     echo Usage: my `basename $0` from_encoding to_encoding file_or_dir_to_transcode

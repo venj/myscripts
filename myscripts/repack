@@ -1,4 +1,6 @@
 #!/usr/bin/env ruby
+# Repack ePub files under a directory to add iTunes recognizable book cover.
+
 require "fileutils"
 include FileUtils
 

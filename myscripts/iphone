@@ -1,6 +1,8 @@
 #!/usr/bin/env ruby
 # encoding = UTF-8
 #
+# Check iPhone 4S availablity in HK and China Mainland.
+#
 # This script requires following gems:
 # - Hpricot
 # - growl (Please build it from latest github source code)

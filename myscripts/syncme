@@ -1,4 +1,6 @@
 #!/usr/bin/env ruby
+# Sync and push myscripts to github.
+
 require "FileUtils"
 include FileUtils
 

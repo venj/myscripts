@@ -1,4 +1,6 @@
 #!/usr/bin/env ruby
+# Test sctipt for "my" wrapper.
+
 ARGV.each do |a|
   puts a
 end

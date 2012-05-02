@@ -1,4 +1,6 @@
 #!/usr/bin/env ruby
+# Checksum files with *ALL* md5 and shaX hash.
+
 (puts "Usage: my #{File.basename $0} file1 [...]" ; exit 1) if ARGV.size < 1
 
 ARGV.each do |f|

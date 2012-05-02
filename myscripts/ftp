@@ -1,4 +1,6 @@
 #!/usr/bin/env ruby
+# Turn on and off FTP service on OSX Lion.
+
 def show_usage
   puts "Usage: my #{File.basename $0} on|off"
 end

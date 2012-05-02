@@ -1,3 +1,7 @@
 #!/bin/sh
+# Hack trail version of Acorn and Snippets app to use after trail period is over.
+#
+# *DEPRICIATED*
+
 defaults write com.flyingmeat.Acorn px30LaunchDate  -date `TZ=UTC date "+%Y-%m-%dT%H:%M:%SZ"` 2> /dev/null
 defaults delete com.snippetsapp.Snippets 2> /dev/null

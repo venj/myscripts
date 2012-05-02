@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+# Turn on and off OSX Lion's key repeat feature.
 
 if ARGV.size < 1
   puts "Usage: my #{File.basename $0} on|off"

@@ -1,4 +1,5 @@
-#!/usr/bin/env ruby 
+#!/usr/bin/env ruby
+# Commit and push your git repo with only one line of command.
 
 (puts "Not a git repository."; exit 1) unless File.exists?(".git")
 (puts "Usage: my #{File.basename(__FILE__)} [-p] Commit message without quote.";exit 0) if ARGV[0] == "-h"

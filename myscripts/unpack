@@ -1,4 +1,6 @@
 #!/usr/bin/env ruby
+# Unpack and rename archives downloaded from wowebooks. 
+
 require "fileutils"
 
 PUBS = ["Oreilly", "Microsoft Publication", "Sitepoint", "Apress", "Simon Schuster",

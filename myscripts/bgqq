@@ -1,2 +1,9 @@
 #!/bin/sh
-defaults write /Applications/QQ.app/Contents/Info LSUIElement -bool YES
+# Make QQ a system tray only app. DO NOT use it on MAS QQ.
+
+if [ -d /Applications/QQ.app/Contents/_MASReceipt ]; then
+    echo "Your QQ is downloaded from Mac App Store, do not use me."
+else
+    defaults write /Applications/QQ.app/Contents/Info LSUIElement -bool YES
+    echo "Done.\nRestart QQ if it is running."
+fi

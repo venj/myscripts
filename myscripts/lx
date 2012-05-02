@@ -1,4 +1,7 @@
 #!/usr/bin/env ruby
+# This script is a wrapper for Xunlei-lixian python script. 
+# Of cause, you should clone xunlei-lixian source code to /usr/local/bin.
+
 require "FileUtils"
 include FileUtils
 

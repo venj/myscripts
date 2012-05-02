@@ -1,4 +1,6 @@
 #!/usr/bin/env ruby
+# Extract all ed2k links from a webpage.
+
 require "open-uri"
 
 (puts "Usage: my #{File.basename $0} link [...]" ; exit 1) if ARGV.size < 1

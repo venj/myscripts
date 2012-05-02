@@ -1,4 +1,5 @@
 #!/bin/bash
+# Inject f-script into a running application
 
 usage() {
     echo Usage: my `basename $0` Process_Name

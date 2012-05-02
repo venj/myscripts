@@ -1,4 +1,6 @@
 #!/bin/sh
+# Clean up your Xcode cache and applications to speedup Xcode.
+
 rm -r ~/Library/Application\ Support/iPhone\ Simulator/5.1/Applications
 mkdir ~/Library/Application\ Support/iPhone\ Simulator/5.1/Applications
 rm -r ~/Library/Application\ Support/iPhone\ Simulator/4.3.2/Applications

@@ -1,4 +1,6 @@
 #!/usr/bin/env ruby
+# Sync all my local git repos.
+
 require "FileUtils"
 include FileUtils
 

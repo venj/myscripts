@@ -1,4 +1,6 @@
 #!/bin/sh
+# Very silly script to update brew softwares.
+
 brew update
 brew upgrade `brew outdated`
 brew cleanup --force

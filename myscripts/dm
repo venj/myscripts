@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
 # encoding=utf-8
 
+# Download manga from manhua.178.com.
 #
 # Usage: ruby down_manga.rb folder_to_hold_manga image_index_url
 # folder_to_hold_manga is a non-existing folder in current directory to save images.
