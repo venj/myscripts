@@ -31,12 +31,16 @@ else
             unset script
         fi
     elif [ "$cmd" == "which" ] || [ "$cmd" == "w" ]; then
-        for script in $*;do
-            filename=$myscript_dir/$script
-            if [ -e $filename ]; then
-                echo $filename
-            fi
-        done
+        if [ $# -eq 0 ]; then
+            echo /usr/local/bin/my
+        else
+            for script in $*;do
+                filename=$myscript_dir/$script
+                if [ -e $filename ]; then
+                    echo $filename
+                fi
+            done
+        fi
         unset script
     elif [ "$cmd" == "chmodx" ] || [ "$cmd" == "x" ]; then
         for script in $*;do
@@ -47,10 +51,14 @@ else
         done
         unset script
     else
-        if [ $# -lt 1 ]; then
-            $myscript_dir/$cmd
+        if [ -f $myscript_dir/$cmd ]; then
+            if [ $# -lt 1 ]; then
+                $myscript_dir/$cmd
+            else
+                $myscript_dir/$cmd "$@"
+            fi
         else
-            $myscript_dir/$cmd "$@"
+            echo "No such command."
         fi
     fi
 fi
