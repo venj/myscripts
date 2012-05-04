@@ -4,7 +4,7 @@
 require "FileUtils"
 include FileUtils
 
-GIT_DIR = "/Users/venj/Developer.localized/github"
+GIT_DIR = "/Volumes/Data/Developer.localized/github"
 
 errors = []
 
