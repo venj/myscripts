@@ -42,9 +42,9 @@ def preprocess(arr)
       ids = get_ids
       files_to_download = arg.split("_").last.to_i
       if files_to_download >= ids.count
-        argv << ids.join(" ")
+        argv << ids
       else
-        argv << ids[0...ids.count]
+        argv << ids[0...files_to_download]
       end
       argv.flatten
     when "dfirst"
@@ -58,11 +58,11 @@ def preprocess(arr)
     when /^delete_\d+$/
       argv << "delete"
       ids = get_ids
-      files_to_download = arg.split("_").last.to_i
-      if files_to_download >= ids.count
-        argv << ids.join(" ")
+      files_to_delete = arg.split("_").last.to_i
+      if files_to_delete >= ids.count
+        argv << ids
       else
-        argv << ids[0...ids.count]
+        argv << ids[0...files_to_delete]
       end
       argv.flatten
     else
