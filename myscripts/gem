@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 # Install rubygems without install docs.
 
-if ARGV[0] == "install"
+if ["install", "update"].index(ARGV[0])
   system("gem #{ARGV.join(' ')} --no-rdoc --no-ri")
 else
   system("gem #{ARGV.join(' ')}")
