@@ -5,7 +5,7 @@ myscript_dir=/usr/local/bin/myscripts
 desc() {
     path=$myscript_dir/$1
     line=`sed -n 2p $path`
-    match=`echo $line|grep -c endocing`
+    match=`echo $line|grep -c -i -P '#\s?encoding\s?='`
     if [ $match -gt 0 ];then         
         line=$(sed -n 3p $path)
     fi
