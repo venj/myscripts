@@ -74,7 +74,7 @@ end
 
 argv = preprocess(ARGV)
 
-if ["update", "--update", "-u"].index(argv[0])
+if ["update", "--update", "-u", "u"].index(argv[0])
   cd LX_HOME do
     system("git pull")
   end
@@ -88,8 +88,10 @@ More commands
  l		same to list
  a		same to add
  d		same to delete
+ u		upgrade lixian app (or use update, --update, -u)
  dl		same to download
  dnd		download task and delete task after download *
+ hash    calculate hash for torrent files
  first		download the first task
  last		download the last task
  first_N	download first N tasks
@@ -105,13 +107,16 @@ More options for download:
 END
   puts output
 elsif (argv.first == "download" && argv.last == "--clean")
-  argv.pop;argvshift
+  argv.pop;argv.shift
   system("#{LX_HOME}/lixian_cli.py download #{argv.join(" ")}")
   system("#{LX_HOME}/lixian_cli.py delete #{argv.join(" ")}")
 elsif (argv.first == "dnd" && argv.size > 1)
-  argvshift
+  argv.shift
   system("#{LX_HOME}/lixian_cli.py download #{argv.join(" ")}")
   system("#{LX_HOME}/lixian_cli.py delete #{argv.join(" ")}")
+elsif (argv.first == "hash" && argv.size > 1)
+  argv.shift
+  system("#{LX_HOME}/lixian_hash.py --info-hash #{argv.join(" ")}")
 else
   system("#{LX_HOME}/lixian_cli.py #{argv.join(" ")}")
 end

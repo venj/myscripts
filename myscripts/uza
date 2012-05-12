@@ -1,1 +1,52 @@
-/Volumes/Data/Developer.localized/Repository/GoogleCode/MyDailyScripts/Bash/unzip_all.sh
+#!/bin/bash
+# A very sluppy code to deal with 0day archives.
+
+cmd=$0
+
+function usage() {
+	printf "  Usage: $(basename $cmd) [ [-h] | [-o] ] [-d DIR]\n"
+	printf "         -h      Print this help.\n"
+	printf "         -o      Overide all files.\n"
+	printf "         -d DIR  Assign a dir zip files live.\n"
+	printf "                 Default is current dir.\n"
+}
+
+dir=$(pwd)
+zip_dir=$dir
+
+function extract_all() {
+	cd $1
+	for f in $(ls *.zip 2> /dev/null);do
+		unzip -q$overwrite "$f"
+	done
+	cd $dir
+	arch=$(uname -s)
+	if [ $arch=Darwin ];then
+		open $1
+	fi
+	unset f 
+}
+
+if [ $# -lt 1 ];then
+	usage
+	exit
+fi
+
+while getopts ohfd: opt
+do
+	case $opt in
+		h)  usage
+				exit
+				;;
+		o)  overwrite=o
+				;;
+		d)  zip_dir=$OPTARG
+				;;
+		*)  usage
+				exit
+				;;
+	esac
+done
+
+extract_all $zip_dir
+unset dir zip_dir
