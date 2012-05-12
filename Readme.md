@@ -11,7 +11,11 @@ Usage
 =====
 
 1. clone to `/usr/local/bin/`
-2. enter `my` on your command line for help
-3. read scripts in `/usr/local/bin/myscripts` for individual script function.
+2. enter `my list` to see available commands 
+3. enter `my info` to see all command description
+4. enter `my info SOME_CMD` see individual command description
 
-ps. Some scripts have help messages.
+Misc
+====
+
+Fork me if you really decide to use it for your own.
