@@ -13,5 +13,5 @@ cd script_dir do
 end
 
 cd dest_dir do
-  system "my commit -p \"Update #{Time.now.strftime('%Y%m%d%H%M%S')}\""
+  system "my commit -p \"Updated at #{Time.now.strftime('%Y-%m-%d %H:%M:%S')}\""
 end
