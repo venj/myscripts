@@ -1,0 +1,33 @@
+#!/usr/bin/env ruby
+# Sync all my local git repos.
+
+require "FileUtils"
+include FileUtils
+
+GIT_DIR = "/Volumes/Data/Developer.localized/github"
+
+errors = []
+
+cd GIT_DIR do
+  Dir["*"].each do |repo|
+    next unless File.directory?(repo)
+    puts "Syncing #{repo}..."
+    cd repo do
+      info = `git status`
+      if info.index("nothing to commit")
+        gitinfo = `git pull > /dev/null 2>&1`
+      else
+        puts "Git repo is not clean: #{repo}"
+        errors << {:repo => repo, :info => info}
+      end
+    end
+  end
+end
+
+puts
+puts "Following error happened: "
+puts
+
+errors.each do |error|
+  puts "Error sync repo: #{error[:repo]}\nError info: #{error[:info]}\n"
+end

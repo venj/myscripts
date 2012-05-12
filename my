@@ -2,12 +2,24 @@
 
 myscript_dir=/usr/local/bin/myscripts
 
+desc() {
+    path=$myscript_dir/$1
+    line=`sed -n 2p $path`
+    match=`echo $line|grep -c endocing`
+    if [ $match -gt 0 ];then         
+        line=$(sed -n 3p $path)
+    fi
+    printf "%-20s" $1
+    echo $line
+}
+
 if [ $# -lt 1 ]; then
     echo "Usage:  $(basename $0) command_name [options]"
     echo "Help: "
     echo "\t list  (l)   --  show all available commands"
     echo "\t -     ll    --  show all available commands, long format"
     echo "\t -     la    --  show all available commands, full format"
+    echo "\t info  (n)   --  show command description"
     echo "\t edit  (e)   --  edit my script"
     echo "\twhich  (w)   --  show script path"
     echo "\tchmodx (x)   --  make script executable"
@@ -21,6 +33,18 @@ else
         ls -lG $myscript_dir
     elif [ "$cmd" == "la" ] || [ "$cmd" == "al" ] ; then
         ls -laG $myscript_dir
+    elif [ "$cmd" == "info" ] || [ "$cmd" == "n" ]; then
+        if [ $# -eq 0 ]; then
+            for file in `ls -1 $myscript_dir`;do
+                desc $file
+            done
+        else
+            if [ -f $myscript_dir/$1 ]; then
+                desc $1
+            else
+                echo "No such command."
+            fi
+        fi
     elif [ "$cmd" == "edit" ] || [ "$cmd" == "e" ] ; then
         if [ $# -eq 0 ]; then
             mate /usr/local/bin/my

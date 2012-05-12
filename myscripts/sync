@@ -1,33 +1,17 @@
 #!/usr/bin/env ruby
-# Sync all my local git repos.
+# Sync and push myscripts to github.
 
 require "FileUtils"
 include FileUtils
 
-GIT_DIR = "/Volumes/Data/Developer.localized/github"
+script_dir = "/usr/local/bin"
+dest_dir = "/Volumes/Data/Developer.localized/github/myscripts/"
 
-errors = []
-
-cd GIT_DIR do
-  Dir["*"].each do |repo|
-    next unless File.directory?(repo)
-    puts "Syncing #{repo}..."
-    cd repo do
-      info = `git status`
-      if info.index("nothing to commit")
-        gitinfo = `git pull > /dev/null 2>&1`
-      else
-        puts "Git repo is not clean: #{repo}"
-        errors << {:repo => repo, :info => info}
-      end
-    end
-  end
+cd script_dir do
+  cp "my", dest_dir
+  cp_r "myscripts", dest_dir
 end
 
-puts
-puts "Following error happened: "
-puts
-
-errors.each do |error|
-  puts "Error sync repo: #{error[:repo]}\nError info: #{error[:info]}\n"
+cd dest_dir do
+  system "my commit -p \"Update #{Time.now.strftime('%Y%m%d%H%M%S')}\""
 end
