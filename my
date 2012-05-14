@@ -9,8 +9,8 @@ desc() {
     if [ $match -gt 0 ];then         
         line=$(sed -n 3p $path)
     fi
-    printf "%-20s" $1
-    echo $line
+    printf "\033[34m%-20s" $1
+    echo "\033[33m$line"
 }
 
 if [ $# -lt 1 ]; then

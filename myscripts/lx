@@ -88,10 +88,12 @@ More commands
  l		same to list
  a		same to add
  d		same to delete
+ o		same to open
  u		upgrade lixian app (or use update, --update, -u)
  dl		same to download
  dnd		download task and delete task after download *
- hash    calculate hash for torrent files
+ hash		calculate hash for torrent files
+ open		open Xunlei Lixian website
  first		download the first task
  last		download the last task
  first_N	download first N tasks
@@ -117,6 +119,8 @@ elsif (argv.first == "dnd" && argv.size > 1)
 elsif (argv.first == "hash" && argv.size > 1)
   argv.shift
   system("#{LX_HOME}/lixian_hash.py --info-hash #{argv.join(" ")}")
+elsif (argv.first == "open" || argv.first == "o")
+  system("open http://lixian.vip.xunlei.com")
 else
   system("#{LX_HOME}/lixian_cli.py #{argv.join(" ")}")
 end
