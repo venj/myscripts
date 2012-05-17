@@ -21,44 +21,39 @@ def preprocess(arr)
     case arg
     when "l"
       argv << "list"
-    when "dl"
+    when "d"
       argv << "download"
     when "h"
       argv << "help"
-    when "d"
+    when "del"
       argv << "delete"
     when "a"
       argv << "add"
     when "first"
-      ids = get_ids
-      argv << "download"
-      argv << ids.first
+    when "f"
+      argv << "download #0"
     when "last"
+    when "la"
       ids = get_ids
       argv << "download"
       argv << ids.last
-    when /^first_\d+$/
-      argv << "download"
-      ids = get_ids
-      files_to_download = arg.split("_").last.to_i
-      if files_to_download >= ids.count
-        argv << ids
-      else
-        argv << ids[0...files_to_download]
-      end
-      argv.flatten
+    when /^f\d+$/
+      fid = arg.split("f").last.to_i
+      argv << "download #0-#{fid-1}"
     when "dfirst"
+    when "df"
       ids = get_ids
       argv << "delete"
       argv << ids.first
     when "dlast"
+    when "dla"
       ids = get_ids
       argv << "download"
       argv << ids.last
-    when /^delete_\d+$/
+    when /^del\d+$/
       argv << "delete"
       ids = get_ids
-      files_to_delete = arg.split("_").last.to_i
+      files_to_delete = arg.split("del").last.to_i
       if files_to_delete >= ids.count
         argv << ids
       else
@@ -87,19 +82,21 @@ More commands
  h		same to help
  l		same to list
  a		same to add
- d		same to delete
+ d		same to download
  o		same to open
+ f		same to first
  u		upgrade lixian app (or use update, --update, -u)
- dl		same to download
+ la		same to last
+ fN		download first N tasks
+ dN		delete first N tasks
+ del		same to delete
  dnd		download task and delete task after download *
  hash		calculate hash for torrent files
  open		open Xunlei Lixian website
  first		download the first task
  last		download the last task
- first_N	download first N tasks
- dfirst		delete the first task
- dlast		delete the last task
- delete_N	delete first N tasks
+ dfirst		delete the first task (or df)
+ dlast		delete the last task (or dla)
 
 More options for download:
  --clean	delete task after download *
@@ -108,10 +105,22 @@ More options for download:
            delete un-downloaded lixian task!
 END
   puts output
-elsif (argv.first == "download" && argv.last == "--clean")
-  argv.pop;argv.shift
-  system("#{LX_HOME}/lixian_cli.py download #{argv.join(" ")}")
-  system("#{LX_HOME}/lixian_cli.py delete #{argv.join(" ")}")
+elsif (argv.first == "download")
+  download_dir = "/Volumes/Data/Downloads/"
+  working_dir = pwd
+  if !File.exists?(download_dir)
+    download_dir = pwd
+  end
+  cd download_dir do 
+    if argv.last == "--clean"
+      argv.pop;argv.shift
+      system("#{LX_HOME}/lixian_cli.py download #{argv.join(" ")}")
+      system("#{LX_HOME}/lixian_cli.py delete #{argv.join(" ")}")
+    else
+      argv.shift
+      system("#{LX_HOME}/lixian_cli.py download #{argv.join(" ")}")
+    end
+  end
 elsif (argv.first == "dnd" && argv.size > 1)
   argv.shift
   system("#{LX_HOME}/lixian_cli.py download #{argv.join(" ")}")

@@ -5,14 +5,14 @@ usage() {
     echo Usage: my `basename $0` from_encoding to_encoding file_or_dir_to_transcode
 }
 
-if [ $# -ne 1 ]; then
+if [ $# -ne 3 ]; then
     usage
     exit 1
 fi
 
-from=`echo $1 | cut -d ' ' -f 1`
-to=`echo $1 | cut -d ' ' -f 2`
-target=`echo $1 | cut -d ' ' -f 3`
+from=$1
+to=$2
+target=$3
 
 if [ -d $target ]; then
     wd=`pwd`
