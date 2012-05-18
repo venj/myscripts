@@ -31,7 +31,8 @@ def preprocess(arr)
       argv << "add"
     when "first"
     when "f"
-      argv << "download #0"
+      argv << "download"
+      argv << "#0"
     when "last"
     when "la"
       ids = get_ids
@@ -39,7 +40,8 @@ def preprocess(arr)
       argv << ids.last
     when /^f\d+$/
       fid = arg.split("f").last.to_i
-      argv << "download #0-#{fid-1}"
+      argv << "download"
+      argv << "#0-#{fid-1}"
     when "dfirst"
     when "df"
       ids = get_ids
@@ -88,8 +90,8 @@ More commands
  u		upgrade lixian app (or use update, --update, -u)
  la		same to last
  fN		download first N tasks
- dN		delete first N tasks
  del		same to delete
+ delN		delete first N tasks
  dnd		download task and delete task after download *
  hash		calculate hash for torrent files
  open		open Xunlei Lixian website
@@ -107,10 +109,10 @@ END
   puts output
 elsif (argv.first == "download")
   download_dir = "/Volumes/Data/Downloads/"
-  working_dir = pwd
-  if !File.exists?(download_dir)
+  unless File.exists?(download_dir)
     download_dir = pwd
   end
+
   cd download_dir do 
     if argv.last == "--clean"
       argv.pop;argv.shift

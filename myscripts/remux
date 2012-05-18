@@ -1,0 +1,14 @@
+#!/usr/bin/env ruby
+# Remux MP4/H264 videos (mkv, avi, etc.) to m4v.
+
+if (`which ffmpeg` == "")
+  puts "You need ffmpeg to use this command."
+  exit 1
+end
+
+Dir["*.*"].each do |file|
+  ext = file.split(".").last
+  next unless ["mkv", "flv", "f4v", "avi"].include?(ext)
+  name = File.basename file, ".#{ext}"
+  system("ffmpeg -i '#{file}' -acodec copy -vcodec copy '#{name}.m4v'")
+end
