@@ -10,5 +10,7 @@ Dir["*.*"].each do |file|
   ext = file.split(".").last
   next unless ["mkv", "flv", "f4v", "avi"].include?(ext)
   name = File.basename file, ".#{ext}"
-  system("ffmpeg -i '#{file}' -acodec copy -vcodec copy '#{name}.m4v'")
+  print "Remuxing #{file}..."
+  system("ffmpeg -v error -i '#{file}' -acodec copy -vcodec copy '#{name}.m4v'")
+  puts "Done"
 end
