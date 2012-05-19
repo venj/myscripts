@@ -13,17 +13,22 @@ desc() {
     echo "\033[33m$line"
 }
 
-if [ $# -lt 1 ]; then
-    echo "Usage:  $(basename $0) command_name [options]"
-    echo "Help: "
-    echo "\t list  (l)   --  show all available commands"
-    echo "\t -     ll    --  show all available commands, long format"
-    echo "\t -     la    --  show all available commands, full format"
-    echo "\t info  (n)   --  show command description"
-    echo "\t edit  (e)   --  edit my script"
-    echo "\twhich  (w)   --  show script path"
-    echo "\tchmodx (x)   --  make script executable"
+usage() {
+    echo "Usage: \033[32m$(basename $0) command_name [options]"
+    echo "\033[0mHelp: "
+    echo "\033[34m list  (l)       \033[33mshow all available commands"
+    echo "\033[34m -     ll        \033[33mshow all available commands, long format"
+    echo "\033[34m -     la        \033[33mshow all available commands, full format"
+    echo "\033[34m info  (n)       \033[33mshow command description"
+    echo "\033[34m edit  (e)       \033[33medit my script"
+    echo "\033[34m cat   (c)       \033[33mprint script source code"
+    echo "\033[34mwhich  (w)       \033[33mshow script path"
+    echo "\033[34mchmodx (x)       \033[33mmake script executable"
     exit 0
+}
+
+if [ $# -lt 1 ]; then
+    usage
 else
     cmd=$1
     shift 1
@@ -35,6 +40,7 @@ else
         ls -laG $myscript_dir
     elif [ "$cmd" == "info" ] || [ "$cmd" == "n" ]; then
         if [ $# -eq 0 ]; then
+            echo "Available commands:"
             for file in `ls -1 $myscript_dir`;do
                 desc $file
             done
@@ -66,6 +72,20 @@ else
             done
         fi
         unset script
+    elif [ "$cmd" == "cat" ] || [ "$cmd" == "c" ]; then
+        if [ $# -eq 0 ]; then
+            cat /usr/local/bin/my | less
+        else
+            for script in $*;do
+                filename=$myscript_dir/$script
+                if [ -e $filename ]; then
+                    cat $filename | less
+                fi
+            done
+        fi
+        unset script
+    elif [ "$cmd" == "help" ] || [ "$cmd" == "h" ] || [ "$cmd" == "--help" ] || [ "$cmd" == "-h" ]; then
+        usage
     elif [ "$cmd" == "chmodx" ] || [ "$cmd" == "x" ]; then
         for script in $*;do
             filename=$myscript_dir/$script
@@ -82,7 +102,7 @@ else
                 $myscript_dir/$cmd "$@"
             fi
         else
-            echo "No such command."
+            echo "No such command.\nUse 'my help' for help."
         fi
     fi
 fi
