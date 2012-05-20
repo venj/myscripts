@@ -1,16 +1,46 @@
 #!/usr/bin/env ruby
 # Remux MP4/H264 videos (mkv, avi, etc.) to m4v.
 
+TMPFILE = "/tmp/ffprobe_out.txt"
+VIDEO_CONTAINER = ["mkv", "flv", "f4v", "avi"]
+VCODECS = ["mpeg4", "h264"]
+ACODECS = ["aac"]
+
 if (`which ffmpeg` == "")
   puts "You need ffmpeg to use this command."
   exit 1
 end
 
+def detect(file)
+  system("ffprobe -v info #{file} > #{TMPFILE} 2>&1")
+  output = open(TMPFILE).read
+  vregex = /Stream .+? Video: (\w+) /
+  vmatch = vregex.match(output)
+  vcodec = vmatch[1] unless vmatch.nil?
+  aregex = /Stream .+? Audio: (\w+) /
+  amatch = aregex.match(output)
+  acodec = amatch[1] unless amatch.nil?
+  File.unlink TMPFILE
+  return [acodec, vcodec]
+end
+
 Dir["*.*"].each do |file|
   ext = file.split(".").last
-  next unless ["mkv", "flv", "f4v", "avi"].include?(ext)
   name = File.basename file, ".#{ext}"
+  outfile = "#{name}.m4v"
+  next unless VIDEO_CONTAINER.include?(ext)
+  acodec,vcodec = detect(file)
+  unless VCODECS.include?(vcodec)
+    puts "#{file}: video codec \"#{vcodec}\" is not compatible with m4v."
+    next
+  end
   print "Remuxing #{file}..."
-  system("ffmpeg -v error -i '#{file}' -acodec copy -vcodec copy '#{name}.m4v'")
+
+  File.unlink outfile if File.exists?(outfile)
+  if ACODECS.include?(acodec)
+    system("ffmpeg -v error -i '#{file}' -c:a copy -c:v copy '#{outfile}'")
+  else
+    system("ffmpeg -v error -i '#{file}' -c:a:192 aac -c:v copy '#{outfile}'")
+  end
   puts "Done"
 end
