@@ -21,13 +21,13 @@ I also include all the scripts that I use in this repo, so if you want to use it
 The `my` wrapper
 ----------------
 
-* `my SOME_COMMAND # Used to run a command.`
-* `my list # List all the commands available`
-* `my edit [SOME_COMMAND] # Edit a command/script, if not exists, it will create a new one. If no command specified, it will edit the 'my' wrapper script.`
-* `my chmodx SOME_COMMAND # Make a script executable, esp. it is newly created.`
-* `my info [SOME_COMMAND] # List command infomation. If SOME_COMMAND is not specified, it will list all command infomation.`
-* `my cat [SOME_COMMAND] # Print out the script source code. If SOME_COMMAND is not specified, it will print the 'my' wrapper script.`
-* `my help # Show help infomation.`
+* `my [SOME_COMMAND]` # Used to run a command. If no command specified, it will show help.
+* `my list` # List all the commands available
+* `my edit [SOME_COMMAND]` # Edit a command/script, if not exists, it will create a new one. If no command specified, it will edit the 'my' wrapper script.
+* `my chmodx SOME_COMMAND` # Make a script executable, esp. it is newly created.
+* `my info [SOME_COMMAND]` # List command infomation. If command is not specified, it will list all command infomation.
+* `my cat [SOME_COMMAND]` # Print out the script source code. If command is not specified, it will print the 'my' wrapper script.
+* `my help` # Show help infomation.
 
 Misc
 ====
