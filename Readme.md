@@ -1,24 +1,23 @@
-My Scripts
-==========
+# My Scripts
+
+## Description
 
 These are my daily scripts with a command wrapper to avoid naming conflict with system and 3rd-party commands. Only usable on a mac. Very sluppy, maybe **ONLY** useful to me.
 
-Install
-=======
+## Install
 
 1. clone to `/usr/local/bin/`
 2. enter `my list` to see available commands 
 3. enter `my info` to see all command description
 4. enter `my info SOME_CMD` see individual command description
 
-Usage
-=====
+## Usage
 
 The core to this repository is the wrapper script: `my`. This wrapper script will search for other scripts located in `/usr/local/bin/myscripts`. The reason why I write this wrapper script is to prevent my own utility scripts polluting system commands. Yes, it is also mean to prevent naming confilicts. 
 
 I also include all the scripts that I use in this repo, so if you want to use it for your own, please fork this repository before you use it. 
 
-*** The `my` wrapper ***
+### The `my` wrapper
 
 * `my [SOME_COMMAND]` # Used to run a command. If no command specified, it will show help.
 * `my list` # List all the commands available
@@ -28,7 +27,6 @@ I also include all the scripts that I use in this repo, so if you want to use it
 * `my cat [SOME_COMMAND]` # Print out the script source code. If command is not specified, it will print the 'my' wrapper script.
 * `my help` # Show help infomation.
 
-Misc
-====
+## Misc
 
 Fork me if you really decide to use it for your own.
