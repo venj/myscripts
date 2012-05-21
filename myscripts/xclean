@@ -1,9 +1,21 @@
-#!/bin/sh
+#!/usr/bin/env ruby
 # Clean up your Xcode cache and applications to speedup Xcode.
 
-rm -r ~/Library/Application\ Support/iPhone\ Simulator/5.1/Applications
-mkdir ~/Library/Application\ Support/iPhone\ Simulator/5.1/Applications
-rm -r ~/Library/Application\ Support/iPhone\ Simulator/4.3.2/Applications
-mkdir ~/Library/Application\ Support/iPhone\ Simulator/4.3.2/Applications
-rm -r ~/Library/Developer/Xcode/DerivedData 
-mkdir ~/Library/Developer/Xcode/DerivedData
+require "fileutils"
+include FileUtils
+
+simulator_dir = File.expand_path "~/Library/Application\ Support/iPhone\ Simulator"
+app_dir = "Applications"
+
+cd simulator_dir do
+  Dir["*"].each do |dir|
+    next if dir == "User"
+    cd dir do
+      rm_rf app_dir
+      mkdir app_dir
+    end
+  end
+end
+
+dervdir = File.expand_path "~/Library/Developer/Xcode/DerivedData"
+rm_rf dervdir; mkdir dervdir
