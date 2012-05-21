@@ -16,6 +16,7 @@ desc() {
 usage() {
     echo "Usage: \033[32m$(basename $0) command_name [options]"
     echo "\033[0mHelp: "
+    echo "\033[34m help  (h)       \033[33mshow this help (also, --h, -h)"
     echo "\033[34m list  (l)       \033[33mshow all available commands"
     echo "\033[34m -     ll        \033[33mshow all available commands, long format"
     echo "\033[34m -     la        \033[33mshow all available commands, full format"
