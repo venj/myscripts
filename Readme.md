@@ -18,8 +18,7 @@ The core to this repository is the wrapper script: `my`. This wrapper script wil
 
 I also include all the scripts that I use in this repo, so if you want to use it for your own, please fork this repository before you use it. 
 
-The `my` wrapper
-----------------
+** The `my` wrapper **
 
 * `my [SOME_COMMAND]` # Used to run a command. If no command specified, it will show help.
 * `my list` # List all the commands available
