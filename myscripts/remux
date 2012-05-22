@@ -28,7 +28,7 @@ Dir["*.*"].each do |file|
   ext = file.split(".").last
   name = File.basename file, ".#{ext}"
   outfile = "#{name}.m4v"
-  next unless VIDEO_CONTAINER.include?(ext)
+  next unless VIDEO_CONTAINER.include?(ext.downcase)
   acodec,vcodec = detect(file)
   unless VCODECS.include?(vcodec)
     puts "#{file}: video codec \"#{vcodec}\" is not compatible with m4v."
