@@ -13,12 +13,12 @@ cd script_dir do
 end
 
 cd dest_dir do
-  if ARGV[0] == "status"
-    system "git status"
-  else
+  if ARGV.size == 0
     message = "Updated at #{Time.now.strftime('%Y-%m-%d %H:%M:%S')}"
     message = ARGV.join(" ") if ARGV.size > 0
     system "my commit -p \"#{message}\""
+  else
+    system "git #{ARGV.join(' ')}"
   end
 end
 
