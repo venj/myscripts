@@ -71,7 +71,10 @@ end
 
 argv = preprocess(ARGV)
 
-if ["update", "--update", "-u", "u"].index(argv[0])
+if !File.directory?(LX_HOME)
+  puts "Please download Xunlei-lixian from: https://github.com/iambus/xunlei-lixian first."
+  exit 1
+elsif ["update", "--update", "-u", "u"].index(argv[0])
   cd LX_HOME do
     system("git pull")
   end
