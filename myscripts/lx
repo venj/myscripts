@@ -109,7 +109,11 @@ END
   puts output
 elsif (argv.first == "download")
   download_dir = "/Volumes/Data/Downloads/"
-  unless File.exists?(download_dir)
+  apath = File.expand_path(argv.last)
+  if File.directory?(apath)
+    download_dir = apath
+    argv.pop
+  elsif !File.directory?(download_dir)
     download_dir = pwd
   end
 
