@@ -136,7 +136,9 @@ elsif (argv.first == "dnd" && argv.size > 1)
   system("#{LX_HOME}/lixian_cli.py delete #{argv.join(" ")}")
 elsif (argv.first == "hash" && argv.size > 1)
   argv.shift
-  system("#{LX_HOME}/lixian_hash.py --info-hash #{argv.join(" ")}")
+  argv.each do |arg|
+    puts `#{LX_HOME}/lixian_hash.py --info-hash #{arg}`.split(" ")[0]
+  end
 elsif (argv.first == "open" || argv.first == "o")
   system("open http://lixian.vip.xunlei.com")
 else
