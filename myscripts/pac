@@ -1,0 +1,21 @@
+#!/usr/bin/env ruby
+# encoding=utf-8
+# Encode plain text pac into a base64 encoded file.
+
+require "base64"
+
+pacfile = "/Users/venj/Sites/autoproxy.pac"
+pac64file = "/Users/venj/Sites/base.pac"
+pac = open(pacfile).read
+
+pac64 = Base64::encode64(pac).gsub(/\s/m, "")
+
+jshead = <<END
+function decode64(_1){var _2="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";var _3="";var _4,_5,_6;var _7,_8,_9,_a;var i=0;_1=_1.replace(/[^A-Za-z0-9\+\/\=]/g,"");do{_7=_2.indexOf(_1.charAt(i++));_8=_2.indexOf(_1.charAt(i++));_9=_2.indexOf(_1.charAt(i++));_a=_2.indexOf(_1.charAt(i++));_4=(_7<<2)|(_8>>4);_5=((_8&15)<<4)|(_9>>2);_6=((_9&3)<<6)|_a;_3=_3+String.fromCharCode(_4);if(_9!=64){_3=_3+String.fromCharCode(_5);}if(_a!=64){_3=_3+String.fromCharCode(_6);}}while(i<_1.length);return _3;}eval(decode64(
+END
+jstail = "))"
+open(pac64file, "w+") do |f|
+  f.puts "#{jshead.strip}\"#{pac64}\"#{jstail}"
+end
+
+system("scp #{pac64file} venjme@venj.me:/home/venjme/www/base.pac 2> /dev/null")
