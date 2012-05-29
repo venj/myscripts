@@ -19,13 +19,13 @@ if [ -d $target ]; then
     cd "$target"
     for file in `ls -1`; do
         filename=${file%.*}
-        iconv -f $from -t $to ${filename}.txt > ${filename}_${to}.txt
+        iconv -f $from -t $to ${file} > ${filename}_${to}.txt
         rm ${filename}.txt
     done
     cd "$wd"
 elif [ -f $target ]; then
     filename=${target%.*}
-    iconv -f $from -t $to ${filename}.txt > ${filename}_${to}.txt
+    iconv -f $from -t $to ${target} > ${filename}_${to}.txt
     #rm $target  # Comment out this to keep original file
 else
     usage
