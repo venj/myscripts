@@ -21,6 +21,9 @@ def preprocess(arr)
     case arg
     when "l"
       argv << "list"
+    when "ln"
+      argv << "list"
+      argv << "--number"
     when "d"
       argv << "download"
     when "h"
@@ -91,6 +94,7 @@ More commands
  o		same to open
  f		same to first
  u		upgrade lixian app (or use update, --update, -u)
+ ln		list downloads with number, start from 0. same to "list --number" 
  la		same to last
  fN		download first N tasks
  del		same to delete
@@ -129,6 +133,14 @@ elsif (argv.first == "download")
       argv.shift
       system("#{LX_HOME}/lixian_cli.py download #{argv.join(" ")}")
     end
+  end
+elsif (argv.first == "list" && argv.last == "--number")
+  # I added this before I notice list command have an -n option.
+  argv.pop;argv.shift
+  line_number = 0
+  `#{LX_HOME}/lixian_cli.py list`.each_line do |l|
+    printf "%-3s %s", line_number, l
+    line_number += 1
   end
 elsif (argv.first == "dnd" && argv.size > 1)
   argv.shift

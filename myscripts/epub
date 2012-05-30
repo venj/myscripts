@@ -1,0 +1,15 @@
+#!/usr/bin/env ruby
+# encoding=utf-8
+# Pack a folder containing ePub necessary data into a ePub file.
+require "fileutils"
+include FileUtils
+
+(puts "Usage: my #{File.basename(__FILE__)} FOLDER [FOLDER2 ...]"; exit) unless ARGV.size > 0
+
+ARGV.each do |arg|
+  next unless File.directory?(arg)
+  cd arg do
+    next unless File.exists?("mimetype")
+    system "zip -Xr9D \"../#{arg}.epub\" mimetype *"
+  end
+end
