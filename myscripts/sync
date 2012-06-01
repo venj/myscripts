@@ -15,7 +15,10 @@ end
 cd dest_dir do
   if ARGV.size == 0
     message = "Updated at #{Time.now.strftime('%Y-%m-%d %H:%M:%S')}"
-    message = ARGV.join(" ") if ARGV.size > 0
+    system "my commit -p \"#{message}\""
+  elsif ARGV[0] == "-p" && ARGV.size > 1
+    argv = ARGV;argv.shift
+    message = argv.join(" ")
     system "my commit -p \"#{message}\""
   else
     system "git #{ARGV.join(' ')}"

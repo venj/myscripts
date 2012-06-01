@@ -1,0 +1,25 @@
+#!/usr/bin/env ruby
+require "fileutils"
+include FileUtils
+
+system("adb remount")
+Dir["*.apk"].each do |apk|
+  system("adb push #{apk} /system/app")
+  basename = File.basename(apk, ".apk")
+  zipname = "#{basename}.zip"
+  cp apk, zipname
+  system("unzip -q #{zipname} -d #{basename}")
+  cd basename do
+    if File.directory?("lib")
+      cd "lib" do
+        cd "armeabi" do
+          Dir["*.*"].each do |so|
+            system("adb push #{so} /system/lib")
+          end
+        end
+      end
+    end
+  end
+  rm_rf basename
+  rm zipname
+end
