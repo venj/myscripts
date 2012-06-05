@@ -24,6 +24,3 @@ cd dest_dir do
     system "git #{ARGV.join(' ')}"
   end
 end
-
-
-
