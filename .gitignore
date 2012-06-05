@@ -7,3 +7,6 @@ project.xcworkspace/
 xcuserdata/
 *.framework
 *.ttc
+
+# Ignore some script
+lanpush

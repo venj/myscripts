@@ -21,6 +21,7 @@ require 'hpricot'
 require 'fileutils'
 
 image_base = "http://manhua.178.com/imgs/"
+
 if ARGV.size != 2 || ARGV[1].index("http://") != 0
   puts "Usage: my #{File.basename $0} FOLDER_NAME WEB_URL"
   puts "FOLDER_NAME is a non-existing folder in current directory to save images."
