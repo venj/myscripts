@@ -16,74 +16,157 @@ if major < '2' && subver < '9'
   exit 1
 end
 
-require 'open-uri'
-require 'hpricot'
-require 'fileutils'
+require "rubygems"
+require "open-uri"
+require "fileutils"
 
-image_base = "http://manhua.178.com/imgs/"
+begin
+  require 'hpricot'
+rescue Exception => e
+  puts "Hpricot gem is needed for this script."
+  exit 1
+end
 
-if ARGV.size != 2 || ARGV[1].index("http://") != 0
+IMAGE_BASE = "http://manhua.178.com/imgs/"
+
+if ARGV.size == 0
   puts "Usage: my #{File.basename $0} FOLDER_NAME WEB_URL"
   puts "FOLDER_NAME is a non-existing folder in current directory to save images."
   puts "WEB_URL is the index for manga, like: http://manhua.178.com/wangxiangxueshenghui/"
-  exit 1
-elsif File.exists?(ARGV[0])
-  puts "#{ARGV[0]} exists, please use another folder name."
-  exit 1
-else
-  if FileUtils.mkdir(ARGV[0])
-    main_uri = ARGV[1]
-    main_uri += '/' unless (main_uri.rindex('/') + 1) == main_uri.size
-    FileUtils.cd(ARGV[0])
-    begin
-      doc = Hpricot(open main_uri)
-    rescue OpenURI::HTTPError => e
-      puts "Failed to open web uri.", e.message
-      exit 1
-    rescue StandardError => e
-      puts "Unknown error.", e.message
-      exit 1
-    end
-    vol_uri = []
+  exit 0
+end
 
-    doc.search('//.cartoon_online_border/ul/li/a').each do |link|
-      vol_uri << [link.inner_text, main_uri + File.basename(link['href'])]
-    end
-    
-    main_dir = FileUtils.pwd
-    
-    vol_uri.each do |dir, uri|
-      puts
-      puts "Downloading #{dir}"
-      puts
-      
-      # Goto sub folder
-      FileUtils.mkdir(dir)
-      FileUtils.cd(dir)
-      page = (open uri).read
-      page.scan(/g_max_pic_count\s*=\s*(\d+)/)
-      image_count = $1
-      page.scan(/var\s+pages\s*=\s*'\[([^\]]+)\]'/)
-      raw_str = $1
-      raw_str.split(",").each do |str|
-        next if str.nil?
-        str.strip!
-        next if str.size < 1
-        part = str.gsub(/\\u(\h{4})/) {
-          [$1.to_i(16)].pack('U')
-        }.gsub(/(\\|")/, '')
-        print "Downloading #{File.basename(part)}.."
-        if system("wget", '-q', image_base + part)
-          puts "Done!"
-        else
-          puts "Failed!\nFailed to download #{File.basename(part)} in #{dir}\n"
-        end
-      end
-      # Go back to main folder
-      FileUtils.cd(main_dir)
-    end
-  else
-    puts "Error make directory in current diretory. \nDoes this directory writable?"
+TMP_FILE = "/tmp/.dmtasks"
+
+def link_from_context
+  link = ""
+  open TMP_FILE do |f|
+    link = f.readlines[0].strip
+  end
+  link
+end
+
+def main_uri(arg)
+  link = arg
+  link = link_from_context if (link !~ /^http:\/\// or link.nil?)
+  uri = link
+  uri += '/' unless (uri.rindex('/') + 1) == uri.size
+  uri
+end
+
+def vol_uri(uri)
+  begin
+    f = open(main_uri(uri))
+    doc = Hpricot(f)
+    f.close
+  rescue OpenURI::HTTPError => e
+    puts "Failed to open web uri.", e.message
     exit 1
+  rescue StandardError => e
+    puts "Unknown error.", e.message
+    exit 1
+  end
+  vu = []
+
+  doc.search('//.cartoon_online_border/ul/li/a').each do |link|
+    vu << [link.inner_text, main_uri(uri) + File.basename(link['href'])]
+  end
+  vu
+end
+
+def print_vols(link)
+  count = 0
+  vol_uri(link).each do |dir, uri|
+    puts "#{count} #{dir}"
+    count += 1
+  end
+  `echo #{link} > #{TMP_FILE}` if link =~ /^http:\/\//
+end
+
+def download_vol(vu, id)
+  vol = vu[id][0]
+  uri = vu[id][1]
+  FileUtils.mkdir(vol)
+  puts
+  puts "Downloading #{vol}..."
+  puts
+  FileUtils.cd vol do
+    page = open(uri).read
+    page.scan(/g_max_pic_count\s*=\s*(\d+)/)
+    image_count = $1
+    page.scan(/var\s+pages\s*=\s*'\[([^\]]+)\]'/)
+    raw_str = $1
+    raw_str.split(",").each do |str|
+      next if str.nil?
+      str.strip!
+      next if str.size < 1
+      part = str.gsub(/\\u(\h{4})/) {
+        [$1.to_i(16)].pack('U')
+      }.gsub(/(\\|")/, '')
+      attempt = 0
+      while attempt <= 5
+        break if down_part part
+        attempt += 1
+        print "Retry attempt #{attempt}: "
+      end
+    end
+  end
+end
+
+def down_part(part)
+  print "Downloading #{File.basename(part)}..."
+  if system("wget", '-q', IMAGE_BASE + part)
+    puts "Done!"
+    return true
+  else
+    puts "Failed!\nFailed to download #{File.basename(part)}.\n"
+    return false
+  end
+end
+
+def uniq_name(name)
+  index = 0
+  n = name
+  while File.exists?(n)
+    name = "#{n}#{index}"
+    index += 1
+  end
+  n
+end
+
+case ARGV[0]
+when "list"
+when "l"
+  print_vols ARGV[1]
+when "download"
+when "d"
+  vu = vol_uri(ARGV.last)
+  arg = ARGV[1]
+  if arg =~ /^\d+$/
+    download_vol vu, arg.to_i
+  elsif arg =~ /\d+-\d+/
+    arr = arg.split("-")
+    start = arr[0].to_i;endd = arr[1].to_i;
+    endd = vu.size - 1 if endd >= (vu.size - 1)
+    start = 0 if start < 0
+    (start..endd).each do |i|
+      download_vol vu, i
+    end
+  elsif arg == "all"
+    link = ARGV.last
+    link = link_from_context unless link =~ /^http:\/\//
+    dir = ARGV[2]
+    dir = link.strip.split("/").last if dir.nil?
+    puts "Downloading all the volumes for manga title - \"#{dir}\": "
+    dir = uniq_name(dir)
+    FileUtils.mkdir(dir)
+    FileUtils.cd(dir) do
+      index = 0
+      while index < vu.size
+        download_vol vu, index
+        index += 1
+      end
+    end
+    puts
   end
 end

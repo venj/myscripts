@@ -6,10 +6,10 @@ include FileUtils
 
 (puts "Usage: my #{File.basename(__FILE__)} folder1 [folder2 ...]";exit) if ARGV[0].nil?
 
-ARGV.each do |folder|
-  next unless File.directory?(folder)
+ARGV.each do |f|
+  next unless File.directory?(f)
+  folder = f.strip
   timestamp = Time.now.strftime("%Y%m%d%H%M%S")
-  folder.strip!
   new_folder = folder + "_" + timestamp
   print "Zipping #{folder}..."
   cp_r folder, new_folder

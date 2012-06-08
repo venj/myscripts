@@ -14,4 +14,4 @@ need_shift_args = (ARGV[0] == "-p")
 init_number = (need_shift_args ? 1 : 0)
 system("git add .;git commit -am \"#{ARGV[init_number..(ARGV.size)].join(' ')}\"") 
 system("git push origin master") if need_push_to_remote
-system("my lanpush") if need_push_to_remote && pwd == "/Users/venj/Documents/Work/ChuangDian/iGolf"
+system("my lanpush") if (need_push_to_remote && pwd == "/Volumes/Data/Documents/Work/ChuangDian/iGolf")

@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+# Install apks in current directory to an Android phone as system apps.
 require "fileutils"
 include FileUtils
 
