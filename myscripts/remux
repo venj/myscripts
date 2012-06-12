@@ -2,7 +2,7 @@
 # Remux MP4/H264 videos (mkv, avi, etc.) to m4v.
 
 TMPFILE = "/tmp/ffprobe_out.txt"
-VIDEO_CONTAINER = ["mkv", "f4v", "avi", "divx"]
+VIDEO_CONTAINER = ["mkv", "f4v", "avi", "divx", "ts"]
 VCODECS = ["mpeg4", "h264"]
 ACODECS = ["aac"]
 
@@ -36,11 +36,13 @@ Dir["*.*"].each do |file|
   end
   print "Remuxing #{file}..."
 
+  other_opt = ""
+  other_opt = "-absf aac_adtstoasc" if ext.downcase == "ts"
   File.unlink outfile if File.exists?(outfile)
   if ACODECS.include?(acodec)
-    system("ffmpeg -v error -i '#{file}' -c:a copy -c:v copy '#{outfile}'")
+    system("ffmpeg -v error -i '#{file}' -c:a copy -c:v copy #{other_opt} '#{outfile}'")
   else
-    system("ffmpeg -v error -i '#{file}' -c:a:192 aac -c:v copy '#{outfile}'")
+    system("ffmpeg -v error -i '#{file}' -c:a:192 aac -c:v copy #{other_opt} '#{outfile}'")
   end
   puts "Done"
 end

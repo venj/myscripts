@@ -104,10 +104,10 @@ def download_vol(vu, id)
         [$1.to_i(16)].pack('U')
       }.gsub(/(\\|")/, '')
       attempt = 0
-      while attempt <= 5
+      while attempt < 10
         break if down_part part
+        print "Retry attempt #{attempt}: #{part}"
         attempt += 1
-        print "Retry attempt #{attempt}: "
       end
     end
   end
@@ -152,7 +152,7 @@ when "d"
     (start..endd).each do |i|
       download_vol vu, i
     end
-  elsif arg == "all"
+  elsif arg == "all" || arg.nil?
     link = ARGV.last
     link = link_from_context unless link =~ /^http:\/\//
     dir = ARGV[2]
