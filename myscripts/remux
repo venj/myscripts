@@ -24,17 +24,25 @@ def detect(file)
   return [acodec, vcodec]
 end
 
+supported_files = []
+
 Dir["*.*"].each do |file|
+  ext = file.split(".").last
+  next unless VIDEO_CONTAINER.include?(ext.downcase)
+  supported_files << file
+end
+
+counter = 1;file_count = supported_files.size
+supported_files.each do |file|
   ext = file.split(".").last
   name = File.basename file, ".#{ext}"
   outfile = "#{name}.m4v"
-  next unless VIDEO_CONTAINER.include?(ext.downcase)
   acodec,vcodec = detect(file)
   unless VCODECS.include?(vcodec)
     puts "#{file}: video codec \"#{vcodec}\" is not compatible with m4v."
     next
   end
-  print "Remuxing #{file}..."
+  print "Remuxing #{file} (#{counter}/#{file_count})..."
 
   other_opt = ""
   other_opt = "-absf aac_adtstoasc" if ext.downcase == "ts"
@@ -45,4 +53,5 @@ Dir["*.*"].each do |file|
     system("ffmpeg -v error -i '#{file}' -c:a:192 aac -c:v copy #{other_opt} '#{outfile}'")
   end
   puts "Done"
+  counter += 1
 end

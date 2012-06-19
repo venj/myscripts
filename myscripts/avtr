@@ -1,0 +1,87 @@
+#!/usr/bin/env ruby
+# encoding=utf-8
+# Download torrent from "that" video website -- you know it ;)
+#
+
+require "rubygems"
+require "open-uri"
+require "hpricot"
+
+website = "http://javjunkies.com"
+download_base = "http://javjunkies.com/main/JavJ.php?k=1300"
+base_uri = "#{website}/main/page/"
+mainpage_index = 1
+
+while true
+  puts "Opening #{base_uri}#{mainpage_index}/..."
+  html = open("#{base_uri}#{mainpage_index}/").read
+  html = open("#{website}/main/").read if mainpage_index == 1
+  maindoc = Hpricot(html)
+  maindoc.search("//div[@class='post']/div[@class='entry']/a").each do |entry|
+    page_uri = website + entry.attributes["href"]
+    begin
+      puts "Opening #{page_uri}..."
+      page_doc = Hpricot(open(page_uri).read)
+    rescue Exception => e
+      puts "Finished or Unknow error..."
+      puts e.message
+      break
+    end
+
+    begin
+      lastpage_index = page_doc.search("//div[@class='post']/div[@class='entry']/p/font/a").last.inner_html.to_i
+    rescue Exception => e
+      lastpage_index = 1
+    end
+    
+    filename_base = File.basename(File.dirname(page_uri)) + "_" + File.basename(page_uri)
+
+    puts "Processing #{filename_base}, #{lastpage_index} pages..."
+
+    (1..lastpage_index).each do |i|
+      if i == 1
+        pagination_doc = page_doc 
+      else
+        pagination_doc = Hpricot(open("#{page_uri}#{i}/").read)
+      end
+      print "\tprocessing page #{i}..."
+      pagination_index = 1
+      pagination_doc.search("//div[@class='post']/div[@class='entry']/div[@class='image']/a").each do |e|
+        #puts e.attributes["onclick"].match(/OLink\('([^']+)'\)/)[1]
+        link_regx = /OLink\('([^']+)'\)/
+        next if e.attributes["onclick"] !~ link_regx
+        tr_link = download_base + e.attributes["onclick"].match(link_regx)[1]
+        image_link = e.search("/img")[0].attributes["src"]
+        tr_filename = filename_base + "_" + pagination_index.to_s + "_" + tr_link.split("/").last
+        image_filename = filename_base + "_" + pagination_index.to_s + "_" + File.basename(image_link)
+        #puts tr_link, image_link
+        begin
+          open(tr_link) do |inf|
+            open(tr_filename, "w+") do |ouf|
+              ouf.write(inf.read)
+            end
+          end
+        rescue Exception => e
+          puts "Error downloading torrent."
+          puts e.message
+          exit
+        end
+
+        begin
+          open(image_link) do |inf|
+            open(image_filename, "w+") do |ouf|
+              ouf.write(inf.read)
+            end
+          end
+        rescue Exception => e
+          puts "Error downloading image."
+        end
+        
+        pagination_index += 1
+      end
+      puts "done."
+    end
+  end
+  break if ARGV[0] == "--week" && mainpage_index == 7
+  mainpage_index += 1
+end

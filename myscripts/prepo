@@ -1,0 +1,19 @@
+#!/usr/bin/env ruby
+# Convert a large icon file into all the sizes needed for App Store.
+
+require "fileutils"
+include FileUtils
+
+ARGV.each do |arg|
+  directory = arg.split(".").first
+  mkdir directory unless File.directory?(directory)
+  cd directory do
+    cp "../#{arg}", "#{directory}_1024.png"
+    system("convert #{directory}_1024.png -resize 512x512 #{directory}_512.png")
+    system("convert #{directory}_1024.png -resize 256x256 #{directory}_256.png")
+    system("convert #{directory}_1024.png -resize 128x128 #{directory}_128.png")
+    system("convert #{directory}_1024.png -resize 32x32 #{directory}_32.png")
+    system("convert #{directory}_1024.png -resize 16x16 #{directory}_16.png")
+  end
+end
+
