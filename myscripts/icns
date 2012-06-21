@@ -1,0 +1,98 @@
+#!/usr/bin/env ruby
+# Make icns file for Mac App Store from a large image file.
+
+require "fileutils"
+require "rmagick"
+include FileUtils
+include Magick
+
+class PPNotSquareShapeError < StandardError;end
+class PPFileTooSmallError < StandardError;end
+class PPFileTypeIncompatibleError < StandardError;end
+
+def resize(image, width)
+  image.scale(width, width)
+end
+
+def make_icon(icon_file, need_clean=false)
+  image = Image.read(icon_file)[0]
+  fileinfo = image.inspect.split(" ")
+  w,h = fileinfo[2].split("x").collect(&:to_i)
+
+  raise PPNotSquareShapeError.new("Image file is not in square shape!") if w != h
+  raise PPFileTooSmallError.new("Image file is too small(less than 512x512)!") if w < 512
+  raise PPFileTypeIncompatibleError.new("Image file is not an transparent png file!") if fileinfo[1] != "PNG" || image.opaque?
+  
+  retina_compatible = (w >= 1024)
+
+  puts "Warning: #{icon_file} is not large enough to make a retina compatible icon." if !retina_compatible
+
+  icon_name = File.basename(icon_file, ".png")
+  directory = icon_name + ".iconset"
+
+  rm_rf directory if File.directory?(directory)
+  mkdir directory
+
+  cd directory do
+    if w > 1024
+      resize(image, 1024).write("icon_512x512@2x.png")
+    elsif w == 1024
+      image.write("icon_512x512@2x.png")
+    end
+    if w > 512
+      i_512 = resize(image, 512)
+      i_512.write("icon_512x512.png")
+      i_512.write("icon_256x256@2x.png") if retina_compatible
+    elsif w == 512
+      image.write("icon_512x512.png")
+      image.write("icon_256x256@2x.png") if retina_compatible
+    end
+
+    i_256 = resize(image, 256)
+    i_256.write("icon_256x256.png")
+    i_256.write("icon_128x128@2x.png") if retina_compatible
+
+    resize(image, 128).write("icon_128x128.png")
+    resize(image, 64).write("icon_32x32@2x.png") if retina_compatible
+    resize(image, 16).write("icon_16x16.png")
+
+    i_32 = resize(image, 32)
+    i_32.write("icon_32x32.png")
+    i_32.write("icon_16x16@2x.png") if retina_compatible
+  end
+  `iconutil -c icns -o #{icon_name}_Icon.icns #{directory} 2> /dev/null`
+  rm_rf directory if need_clean
+end
+
+def usage
+  puts "my #{File.basename $0} [PNG_FILE ...]"
+end
+
+if __FILE__ == $0
+  (usage;exit 0) if ARGV.size == 0
+  argv = ARGV.uniq
+
+  clean_options = ["--clean", "-c"]
+  need_clean = false
+
+  clean_options.each do |opt|
+    (need_clean = true;argv.delete(opt)) if argv.index(opt)
+  end
+  
+  argv.each do |arg|
+    next if File.directory?(arg)
+    begin
+      make_icon(arg, need_clean)
+    rescue PPNotSquareShapeError => e
+      print "Error making icns for image \"#{arg}\": "
+      puts e.message
+    rescue PPFileTooSmallError => e
+      print "Error making icns for image \"#{arg}\": "
+      puts e.message
+    rescue PPFileTypeIncompatibleError => e
+      print "Error making icns for image \"#{arg}\": "
+      puts e.message
+    end
+  end
+end
+
