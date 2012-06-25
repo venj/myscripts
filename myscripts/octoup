@@ -1,0 +1,69 @@
+#!/usr/bin/env ruby
+# Update Octopress and push code to blog source code repo (not publish to github pages)
+
+require "tempfile"
+require "fileutils"
+include FileUtils
+
+def diffcontent(revert=true)
+  diff =<<END
+diff --git a/Rakefile b/Rakefile
+index fc370aa..fdc544e 100644
+--- a/Rakefile
++++ b/Rakefile
+@@ -8,7 +8,7 @@ ssh_user       = "user@domain.com"
+ ssh_port       = "22"
+ document_root  = "~/website.com/"
+ rsync_delete   = true
+#{revert ? "-" : "+"}deploy_default = "push"
+#{revert ? "+" : "-"}deploy_default = "rsync"
+ 
+ # This will be configured for you when you run config_deploy
+ deploy_branch  = "master"
+END
+end
+
+cd "#{ENV['HOME']}/Developer/github/octopress" do
+  # Check if octopress need to update
+  update_status = `git remote -v update octopress 2>&1`
+  up_to_date = (update_status =~ /(.+?up to date.+?octopress\/master)/)
+  (puts "You octopress is up-to-date, skip.";exit) if up_to_date
+  #Create a temp file to hold the patch.
+  patch = Tempfile.new("patch")
+  patch.write diffcontent
+  patch.rewind
+
+  # Get rid of the files that will possible lead to conflict.
+  rm "Gemfile.lock"
+  system("git apply #{patch.path}")
+  need_commit = (`git status`).index("nothing to commit").nil?
+  system("git add .")
+  system("git commit -am \"Commit local changes and revert to original Rakefile to update octopress at #{Time.now.strftime('%Y-%m-%d %H:%M:%S')}\"") if need_commit
+
+  # Update Octopress.
+  system("git pull octopress master")
+  system("bundle install")
+  system("rake update_source")
+  system("rake update_style")
+
+  #Revert to original Rakefile
+  patch.write diffcontent(false)
+  patch.rewind
+  system("git apply #{patch.path}")
+
+  #Deploy site (to github pages) with new octopress.
+  system("rake gen_deploy")
+
+  # Commit and push to blog source repo (not github pages.)
+  need_commit = (`git status`).index("nothing to commit").nil?
+
+  system("git add .")
+  system("git commit -am \"Commit code for octopress update at #{Time.now.strftime('%Y-%m-%d %H:%M:%S')}\"") if need_commit
+  system("git push origin source")
+
+  #Close and unlink temp file.
+  patch.close
+  patch.unlink
+end
+
+
