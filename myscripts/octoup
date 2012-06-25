@@ -1,5 +1,5 @@
 #!/usr/bin/env ruby
-# Update Octopress and push code to blog source code repo (not publish to github pages)
+# Update Octopress and push code to blog source code repo (and publish to github pages)
 
 require "tempfile"
 require "fileutils"
