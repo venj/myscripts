@@ -37,8 +37,10 @@ cd "#{ENV['HOME']}/Developer/github/octopress" do
   rm "Gemfile.lock"
   system("git apply #{patch.path}")
   need_commit = (`git status`).index("nothing to commit").nil?
-  system("git add .")
-  system("git commit -am \"Commit local changes and revert to original Rakefile to update octopress at #{Time.now.strftime('%Y-%m-%d %H:%M:%S')}\"") if need_commit
+  if need_commit
+    system("git add .")
+    system("git commit -am \"Commit local changes and revert to original Rakefile to update octopress at #{Time.now.strftime('%Y-%m-%d %H:%M:%S')}\"")
+  end
 
   # Update Octopress.
   system("git pull octopress master")
@@ -55,10 +57,8 @@ cd "#{ENV['HOME']}/Developer/github/octopress" do
   system("rake gen_deploy")
 
   # Commit and push to blog source repo (not github pages.)
-  need_commit = (`git status`).index("nothing to commit").nil?
-
   system("git add .")
-  system("git commit -am \"Commit code for octopress update at #{Time.now.strftime('%Y-%m-%d %H:%M:%S')}\"") if need_commit
+  system("git commit -am \"Commit code for octopress update at #{Time.now.strftime('%Y-%m-%d %H:%M:%S')}\"")
   system("git push origin source")
 
   #Close and unlink temp file.
