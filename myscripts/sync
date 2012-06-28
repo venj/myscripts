@@ -12,15 +12,14 @@ cd script_dir do
   cp "my", dest_dir
   cp_r "myscripts", dest_dir
   cd "myscripts" do
-    scripts_arr = Dir["*"].to_a
+    scripts_arr = Dir["*"]
   end
 end
 
 cd dest_dir do
   cd "myscripts" do
-    scripts_arr = Dir["*"].to_a
-    (scripts_arr & dest_arr).each { |f| puts f }
-    #puts Dir["*"].to_a;exit
+    dest_arr = Dir["*"]
+    (dest_arr - scripts_arr).each { |f| File.unlink f }
   end
   if ARGV.size == 0
     message = "Updated at #{Time.now.strftime('%Y-%m-%d %H:%M:%S')}"
