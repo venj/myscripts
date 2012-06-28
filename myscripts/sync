@@ -19,7 +19,7 @@ end
 cd dest_dir do
   cd "myscripts" do
     dest_arr = Dir["*"]
-    (dest_arr - scripts_arr).each { |f| File.unlink f }
+    (dest_arr - scripts_arr).each { |f| File.unlink f } # Deleted deprecated script.
   end
   if ARGV.size == 0
     message = "Updated at #{Time.now.strftime('%Y-%m-%d %H:%M:%S')}"

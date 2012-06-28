@@ -22,6 +22,7 @@ usage() {
     echo "\033[34m -     la        \033[33mshow all available commands, full format"
     echo "\033[34m info  (n)       \033[33mshow command description"
     echo "\033[34m edit  (e)       \033[33medit my script"
+    echo "\033[34m del   (d)       \033[33mdelete a script, also 'delete'"
     echo "\033[34m cat   (c)       \033[33mprint script source code"
     echo "\033[34mwhich  (w)       \033[33mshow script path"
     echo "\033[34mchmodx (x)       \033[33mmake script executable"
@@ -58,6 +59,28 @@ else
         else
             for script in $*;do
                 mate $myscript_dir/$script
+            done
+            unset script
+        fi
+    elif [ "$cmd" == "delete" ] || [ "$cmd" == "d" ] || [ "$cmd" == "del" ] ; then
+        if [ $# -eq 0 ]; then
+            exit 0
+        else
+            for script in $*;do
+                printf "\033[31mAre you sure to delete script '$script'? (yes/no): \033[0m"
+                read answer
+                answer=$(echo $answer | tr '[A-Z]' '[a-z]')
+                if [ -z "$answer" ];then
+                    answer=no
+                fi
+                if [ ${answer} == "yes" ];then
+                    if [ -f $myscript_dir/$script ]; then
+                        rm $myscript_dir/$script
+                    else
+                        echo ${script} does not exists.
+                    fi
+                    
+                fi
             done
             unset script
         fi
