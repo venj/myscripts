@@ -24,6 +24,9 @@ def preprocess(arr)
     when "ln"
       argv << "list"
       argv << "--number"
+    when "lc"
+      argv << "list"
+      argv << "completed"
     when "d"
       argv << "download"
     when "h"
@@ -134,9 +137,18 @@ elsif (argv.first == "download")
       system("#{LX_HOME}/lixian_cli.py download #{argv.join(" ")}")
     end
   end
-elsif (argv.first == "list" && argv.last == "--number")
+elsif (argv.first == "list" && (["c", "completed", "done"] & argv).size > 0)
   # I added this before I notice list command have an -n option.
-  argv.pop;argv.shift
+  argv.shift
+  (["c", "completed", "done"] & argv).each { |e| argv.delete(e)}
+  line_number = 0
+  `#{LX_HOME}/lixian_cli.py list`.each_line do |l|
+    printf "%-3s %s", line_number, l if (l.index("completed"))
+    line_number += 1
+  end
+elsif (argv.first == "list" && argv.include?("--number"))
+  # I added this before I notice list command have an -n option.
+  argv.shift;argv.delete("--number")
   line_number = 0
   `#{LX_HOME}/lixian_cli.py list`.each_line do |l|
     printf "%-3s %s", line_number, l
