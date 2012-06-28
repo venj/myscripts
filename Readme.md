@@ -2,9 +2,11 @@
 
 ## Description
 
-These are my daily scripts with a command wrapper to avoid naming conflict with system and 3rd-party commands. Only usable on a mac. Very sluppy, maybe **ONLY** useful to me.
+These are my daily scripts with a command wrapper to avoid naming conflict with system and 3rd-party commands. Only usable on a mac. Very sluppy, use at your own risk.
 
 ## Install/Upgrade
+
+*Be sure to fork this repository before you install and edit following install script properly!!!*
 
 You can use following install script to install and upgrade:
 
@@ -15,9 +17,9 @@ curl -sLO https://github.com/venj/myscripts/zipball/master
 unzip -q master
 cd venj-myscripts-*
 adir=$(basename $(pwd))
-cp my /Users/venj/Downloads/my
-rm -rf /Users/venj/Downloads/myscripts 2> /dev/null
-cp -r myscripts /Users/venj/Downloads/myscripts
+cp my /usr/local/bin/my
+rm -rf /usr/local/bin/myscripts 2> /dev/null
+cp -r myscripts /usr/local/bin/myscripts
 cd $cdir
 rm -rf $adir
 rm master
@@ -66,6 +68,51 @@ end
 
 hello
 ```
+
+## Individual Scripts
+
+If you don't want to put all the sluppy stuff on your machine, you may found some individual scripts that are useful to you. Check'em out [here](https://github.com/venj/myscripts/tree/master/myscripts). You may run it directly on the command line without "my" wrapper.
+
+Here are the functions for all the scripts in this repo: 
+```
+airdrop             # Enable and disable airdrop for all network interface on OSX Lion
+avpw                # Password for archives downloaded on Tumao AV website.
+avtr                # Download torrent from "that" video website -- you know it ;)
+bgqq                # Make QQ a system tray only app. DO NOT use it on MAS QQ.
+bu                  # Very silly script to update brew softwares.
+checksum            # Checksum files with *ALL* md5 and shaX hash.
+commit              # Commit and push your git repo with only one line of command.
+dm                  # Download manga from manhua.178.com.
+ed2k                # Extract all ed2k links from a webpage.
+epub                # Pack a folder containing ePub necessary data into a ePub file.
+ftp                 # Turn on and off FTP service on OSX Lion.
+gem                 # Install rubygems without install docs.
+gitsync             # Sync all my local git repos.
+icns                # Make icns file for Mac App Store from a large image file.
+inject              # Inject f-script into a running application
+iphone              # Check iPhone 4S availablity in HK and China Mainland.
+keyrepeat           # Turn on and off OSX Lion's key repeat feature.
+lanpush             # Push iGolf project to company git server.
+lx                  # This script is a wrapper for Xunlei-lixian python script. 
+octoup              # Update Octopress and push code to blog source code repo (and publish to github pages)
+pac                 # Encode plain text pac into a base64 encoded file.
+pack                # Pack git repo into a zip archive for sharing.
+ramdisk             # Make ramdisk with specific size.
+remux               # Remux MP4/H264 videos (mkv, avi, etc.) to m4v.
+rename              # Unpack or/and rename zip archive and/or ebook to a user specified name.
+repack              # Repack ePub files under a directory to add iTunes recognizable book cover.
+sparklekeygen       # Sparkle keygen
+sparklesignupdate   # Sparkle sign update
+sync                # Sync and push myscripts to github.
+sysapk              # Install apks in current directory to an Android phone as system apps.
+test                # Test sctipt for "my" wrapper.
+transcode           # Change encoding for text files. (Save you some typing.)
+unpack              # Unpack and rename archives downloaded from wowebooks. 
+uza                 # A very sluppy code to deal with 0day archives.
+xclean              # Clean up your Xcode cache and applications to speedup Xcode.
+```
+
+Above is the information you will see after you install the whole repo and fireup `my info`.
 
 ## Misc
 
