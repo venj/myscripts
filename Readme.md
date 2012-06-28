@@ -4,13 +4,24 @@
 
 These are my daily scripts with a command wrapper to avoid naming conflict with system and 3rd-party commands. Only usable on a mac. Very sluppy, maybe **ONLY** useful to me.
 
-## Install
+## Install/Upgrade
 
-1. clone to `/usr/local/bin/`
-2. enter `my list` to see available commands 
-3. enter `my info` to see all command description
-4. enter `my info SOME_CMD` see individual command description
-5. You may want to create a symbolic link (or an alias) named `mate` to your favorite editor
+You can use following install script to install and upgrade:
+
+```bash
+#!/bin/sh
+cdir=$(pwd)
+curl -sLO https://github.com/venj/myscripts/zipball/master 
+unzip -q master
+cd venj-myscripts-*
+adir=$(basename $(pwd))
+cp my /Users/venj/Downloads/my
+rm -rf /Users/venj/Downloads/myscripts 2> /dev/null
+cp -r myscripts /Users/venj/Downloads/myscripts
+cd $cdir
+rm -rf $adir
+rm master
+```
 
 ## Usage
 
@@ -26,6 +37,7 @@ I also include all the scripts that I use in this repo, so if you want to use it
 * `my chmodx SOME_COMMAND` # Make a script executable, esp. it is newly created.
 * `my info [SOME_COMMAND]` # List command infomation. If command is not specified, it will list all command infomation.
 * `my cat [SOME_COMMAND]` # Print out the script source code. If command is not specified, it will print the 'my' wrapper script.
+* `my del [SOME_COMMAND]` # Delete a command you no longer use.
 * `my help` # Show help infomation.
 
 ## Add your own script
