@@ -4,6 +4,7 @@
 if [ -d /Applications/QQ.app/Contents/_MASReceipt ]; then
     echo "Your QQ is downloaded from Mac App Store, do not use me."
 else
+    mv /Applications/QQ.app/Contents/_CodeSignature /Applications/QQ.app/Contents/NoCodeSignature
     defaults write /Applications/QQ.app/Contents/Info LSUIElement -bool YES
     echo "Done.\nRestart QQ if it is running."
 fi
