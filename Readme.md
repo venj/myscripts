@@ -12,6 +12,8 @@ You can use following install script to install and upgrade:
 
 ```bash
 #!/bin/sh
+# Update script for users.
+
 cdir=$(pwd)
 curl -sLO https://github.com/venj/myscripts/zipball/master 
 unzip -q master
@@ -19,7 +21,7 @@ cd venj-myscripts-*
 adir=$(basename $(pwd))
 cp my /usr/local/bin/my
 mkdir -p /usr/local/bin/myscripts
-cp -r myscripts /usr/local/bin/myscripts
+cp -rf myscripts /usr/local/bin/myscripts
 cd $cdir
 rm -rf $adir
 rm master
