@@ -25,7 +25,7 @@ usage() {
     echo "\033[34m del   (d)       \033[33mdelete a script, also 'delete'"
     echo "\033[34m cat   (c)       \033[33mprint script source code"
     echo "\033[34mwhich  (w)       \033[33mshow script path"
-    echo "\033[34mchmodx (x)       \033[33mmake script executable"
+    echo "\033[34mchmodx (x)       \033[33mmake script executable\033[0m"
     exit 0
 }
 
