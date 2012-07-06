@@ -1,4 +1,6 @@
 #!/bin/sh
+# Update script for users.
+
 cdir=$(pwd)
 curl -sLO https://github.com/venj/myscripts/zipball/master 
 unzip -q master
