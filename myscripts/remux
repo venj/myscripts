@@ -32,26 +32,39 @@ Dir["*.*"].each do |file|
   supported_files << file
 end
 
-counter = 1;file_count = supported_files.size
-supported_files.each do |file|
-  ext = file.split(".").last
-  name = File.basename file, ".#{ext}"
-  outfile = "#{name}.m4v"
-  acodec,vcodec = detect(file)
-  unless VCODECS.include?(vcodec)
-    puts "#{file}: video codec \"#{vcodec}\" is not compatible with m4v."
-    next
+if ARGV[0] == "info"
+  supported_files.each do |file|
+    acodec,vcodec = detect(file)
+    if VCODECS.include?(vcodec) && acodec != "aac"
+      puts "\"#{file}\" needs to re-encode audio track (acodec: \"#{acodec}\")."
+    elsif (!VCODECS.include?(vcodec))
+      puts "\"#{file}\" is not able to remux to M4V (vcodec: \"#{vcodec}\")."
+    else
+      puts "\"#{file}\" is M4V ready!"
+    end
   end
-  print "Remuxing #{file} (#{counter}/#{file_count})..."
+else
+  counter = 1;file_count = supported_files.size
+  supported_files.each do |file|
+    ext = file.split(".").last
+    name = File.basename file, ".#{ext}"
+    outfile = "#{name}.m4v"
+    acodec,vcodec = detect(file)
+    unless VCODECS.include?(vcodec)
+      puts "#{file}: video codec \"#{vcodec}\" is not compatible with m4v."
+      next
+    end
+    print "Remuxing #{file} (#{counter}/#{file_count})..."
 
-  other_opt = ""
-  other_opt = "-absf aac_adtstoasc" if ext.downcase == "ts"
-  File.unlink outfile if File.exists?(outfile)
-  if ACODECS.include?(acodec)
-    system("ffmpeg -v error -i '#{file}' -c:a copy -c:v copy #{other_opt} '#{outfile}'")
-  else
-    system("ffmpeg -v error -i '#{file}' -c:a:192 aac -c:v copy #{other_opt} '#{outfile}'")
+    other_opt = ""
+    other_opt = "-absf aac_adtstoasc" #if ext.downcase == "ts"
+    File.unlink outfile if File.exists?(outfile)
+    if ACODECS.include?(acodec)
+      system("ffmpeg -v error -i '#{file}' -c:a copy -c:v copy #{other_opt} '#{outfile}'")
+    else
+      system("ffmpeg -v error -i '#{file}' -c:a:192 aac -c:v copy #{other_opt} '#{outfile}'")
+    end
+    puts "Done"
+    counter += 1
   end
-  puts "Done"
-  counter += 1
 end
