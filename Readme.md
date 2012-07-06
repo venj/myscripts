@@ -18,7 +18,7 @@ unzip -q master
 cd venj-myscripts-*
 adir=$(basename $(pwd))
 cp my /usr/local/bin/my
-rm -rf /usr/local/bin/myscripts 2> /dev/null
+mkdir -p /usr/local/bin/myscripts
 cp -r myscripts /usr/local/bin/myscripts
 cd $cdir
 rm -rf $adir
