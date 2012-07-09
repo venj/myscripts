@@ -89,7 +89,6 @@ icns                # Make icns file for Mac App Store from a large image file.
 inject              # Inject f-script into a running application
 iphone              # Check iPhone 4S availablity in HK and China Mainland.
 keyrepeat           # Turn on and off OSX Lion's key repeat feature.
-lanpush             # Push iGolf project to company git server.
 lx                  # This script is a wrapper for Xunlei-lixian python script. 
 octoup              # Update Octopress and push code to blog source code repo (and publish to github pages)
 pac                 # Encode plain text pac into a base64 encoded file.
