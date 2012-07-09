@@ -113,7 +113,7 @@ Above is the information you will see after you install the whole repo and fireu
 
 ## Q&A
 
-Q: Darn, the `my` stuff is f**king boring!!!
+Q: Darn, the `my` stuff is f**king boring!!!<br/>
 A: Well, you can use alias to your shell's rc file to get rid of the `my` stuff. e.g.:
 
 ```
@@ -244,7 +244,7 @@ xclean              # Clean up your Xcode cache and applications to speedup Xcod
 
 ## 问答
 
-问：我去，为什么要我在每个命令前打`my`啊！
+问：我去，为什么要我在每个命令前打`my`啊！<br/>
 答：你可以在shell的rc脚本里创建命令的别名（alias），示例如下：
 
 ```
