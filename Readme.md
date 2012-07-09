@@ -77,17 +77,12 @@ If you don't want to put all the sluppy stuff on your machine, you may found som
 
 Here are the functions for all the scripts in this repo: 
 ```
-airdrop             # Enable and disable airdrop for all network interface on OSX Lion
-avpw                # Password for archives downloaded on Tumao AV website.
-avtr                # Download torrent from "that" video website -- you know it ;)
-bgqq                # Make QQ a system tray only app. DO NOT use it on MAS QQ.
 bu                  # Very silly script to update brew softwares.
 checksum            # Checksum files with *ALL* md5 and shaX hash.
 commit              # Commit and push your git repo with only one line of command.
 dm                  # Download manga from manhua.178.com.
 ed2k                # Extract all ed2k links from a webpage.
 epub                # Pack a folder containing ePub necessary data into a ePub file.
-ftp                 # Turn on and off FTP service on OSX Lion.
 gem                 # Install rubygems without install docs.
 gitsync             # Sync all my local git repos.
 icns                # Make icns file for Mac App Store from a large image file.
@@ -103,13 +98,14 @@ ramdisk             # Make ramdisk with specific size.
 remux               # Remux MP4/H264 videos (mkv, avi, etc.) to m4v.
 rename              # Unpack or/and rename zip archive and/or ebook to a user specified name.
 repack              # Repack ePub files under a directory to add iTunes recognizable book cover.
-sparklekeygen       # Sparkle keygen
-sparklesignupdate   # Sparkle sign update
+sparkle             # Sparkle keygen and sign update
 sync                # Sync and push myscripts to github.
 sysapk              # Install apks in current directory to an Android phone as system apps.
 test                # Test sctipt for "my" wrapper.
 transcode           # Change encoding for text files. (Save you some typing.)
+tweak               # System tweak commands for OS X lion.
 unpack              # Unpack and rename archives downloaded from wowebooks. 
+update              # Update script for users.
 uza                 # A very sluppy code to deal with 0day archives.
 xclean              # Clean up your Xcode cache and applications to speedup Xcode.
 ```
