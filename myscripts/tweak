@@ -1,0 +1,62 @@
+#!/usr/bin/env ruby
+# System tweak commands for OS X lion.
+
+begin
+  require "colorize"
+rescue LoadError => e
+  puts "Please install colorize gem with: "
+  puts "[sudo] gem install colorize --no-rdoc --no-ri"
+  exit 1
+end
+
+def usage
+  puts "Usage: ".magenta + "my #{File.basename __FILE__} FEATURE on|off".light_blue
+  puts
+  puts "Available tweaks:".magenta
+  puts "airdrop".blue + "    Turn on/off AirDrop on all network interfaces".yellow
+  puts "ftp".blue + "        Turn on/off FTP service on OS X Lion".yellow
+  puts "tmlocal".blue + "    Turn on/off Time Machine local snapshot on OS X Lion".yellow
+end
+
+def sysver
+  `sw_vers -productVersion`.strip.split(".")[1].to_i
+end
+
+def verreq(ver)
+  v,p = ver.split("")
+  if p.nil? && sysver != v.to_i
+    puts "This tweak is only available on Mac OS X 10.#{v}."
+    exit 1
+  elsif p == "+" && sysver < v.to_i
+    puts "This tweak is only available on Mac OS X 10.#{v} and up."
+    exit 1
+  end
+end
+
+(usage;exit) if ARGV.size != 2
+
+feature = ARGV[0]
+option = nil
+
+if ARGV[1].downcase == "on"
+  option = true
+elsif ARGV[1].downcase == "off"
+  option = false
+else
+  usage
+end
+
+case feature
+when "airdrop"
+  verreq("7+")
+  system("defaults write com.apple.NetworkBrowser BrowseAllInterfaces #{option ? 1 : 0 }")
+  system("killall Finder")
+when "ftp"
+  verreq("7")
+  system("sudo -s launchctl #{option ? "load" : "unload" } -w /System/Library/LaunchDaemons/ftp.plist")
+when "tmlocal"
+  verreq("7")
+  system("sudo tmutil #{option ? "enablelocal" : "disablelocal" }")
+else
+  puts "No suck tweak: " + "#{feature}".red + "."
+end
