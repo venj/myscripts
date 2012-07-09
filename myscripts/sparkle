@@ -1,0 +1,47 @@
+#!/usr/bin/env ruby
+# Sparkle keygen and sign update
+
+begin
+  require "colorize"
+rescue LoadError => e
+  puts "Please install colorize gem with: "
+  puts "[sudo] gem install colorize --no-rdoc --no-ri"
+  exit 1
+end
+
+def keygen
+  ["dsaparam.pem", "dsa_priv.pem", "dsa_pub.pem"].each do |file|
+    if File.exist? file
+      puts "There's already a #{file} here! Move it aside or be more careful!"
+    end
+  end
+  `openssl dsaparam 2048 < /dev/urandom > dsaparam.pem`
+  `openssl gendsa dsaparam.pem -out dsa_priv.pem`
+  `openssl dsa -in dsa_priv.pem -pubout -out dsa_pub.pem`
+  `rm dsaparam.pem`
+  puts "\nGenerated private and public keys: dsa_priv.pem and dsa_pub.pem.\n
+  BACK UP YOUR PRIVATE KEY AND KEEP IT SAFE!\n
+  If you lose it, your users will be unable to upgrade!\n"
+end
+
+def sign_update
+  if ARGV.length < 3
+    puts "Usage: my #{File.basename __FILE__} signupdate update_archive private_key"
+    exit
+  end
+  puts `openssl dgst -sha1 -binary < "#{ARGV[0]}" | openssl dgst -dss1 -sign "#{ARGV[1]}" | openssl enc -base64`
+end
+
+def usage
+  puts "Usage: ".magenta
+  puts "    my #{File.basename __FILE__} keygen".yellow
+  puts "    my #{File.basename __FILE__} signupdate update_archive private_key".yellow
+end
+
+if ARGV.size == 0
+  usage
+elsif ARGV[0].downcase == "keygen"
+  keygen
+elsif ARGV[0].downcase == "signupdate"
+  signupdate
+end
