@@ -52,7 +52,7 @@ when "airdrop"
   system("defaults write com.apple.NetworkBrowser BrowseAllInterfaces #{option ? 1 : 0 }")
   system("killall Finder")
 when "ftp"
-  verreq("7")
+  verreq("7+")
   system("sudo -s launchctl #{option ? "load" : "unload" } -w /System/Library/LaunchDaemons/ftp.plist")
 when "tmlocal"
   verreq("7")
