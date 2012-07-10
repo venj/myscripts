@@ -13,9 +13,10 @@ def usage
   puts "Usage: ".magenta + "my #{File.basename __FILE__} FEATURE on|off".light_blue
   puts
   puts "Available tweaks:".magenta
-  puts "airdrop".blue + "    Turn on/off AirDrop on all network interfaces".yellow
-  puts "ftp".blue + "        Turn on/off FTP service on OS X Lion".yellow
-  puts "tmlocal".blue + "    Turn on/off Time Machine local snapshot on OS X Lion".yellow
+  puts "airdrop".blue + "    Turn on/off AirDrop on all network interfaces on OS X Lion and up".yellow
+  puts "ftp".blue + "        Turn on/off FTP service on OS X Lion and up".yellow
+  puts "tmlocal".blue + "    Turn on/off Time Machine local snapshot on OS X Lion and up".yellow
+  puts "keyrepeat".blue + "  Turn on/off long press a key to input euro chars on OS X Lion and up".yellow
 end
 
 def sysver
@@ -55,8 +56,11 @@ when "ftp"
   verreq("7+")
   system("sudo -s launchctl #{option ? "load" : "unload" } -w /System/Library/LaunchDaemons/ftp.plist")
 when "tmlocal"
-  verreq("7")
+  verreq("7+")
   system("sudo tmutil #{option ? "enablelocal" : "disablelocal" }")
+when "keyrepeat"
+  verreq("7+")
+  system("defaults write ApplePressAndHoldEnabled -bool #{option ? true : false }")
 else
   puts "No suck tweak: " + "#{feature}".red + "."
 end
