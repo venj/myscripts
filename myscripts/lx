@@ -6,6 +6,7 @@ require "FileUtils"
 include FileUtils
 
 LX_HOME = "/usr/local/bin/xunlei-lixian"
+download_dir = "/Volumes/Data/Downloads/"
 
 def get_ids
   ids = []
@@ -26,6 +27,9 @@ def preprocess(arr)
       argv << "--number"
     when "lc"
       argv << "list"
+      argv << "completed"
+    when "dc"
+      argv << "download"
       argv << "completed"
     when "d"
       argv << "download"
@@ -117,8 +121,23 @@ More options for download:
            delete un-downloaded lixian task!
 END
   puts output
+elsif (argv.first == "download" \
+        && (["c", "completed", "done"] & argv).size > 0)
+  files_to_download = argv.last.to_i
+  argv.shift;argv.pop
+  (["c", "completed", "done"] & argv).each { |e| argv.delete(e)}
+  line_number = 0; complete_number = 1;
+  fids = []
+  `#{LX_HOME}/lixian_cli.py list`.each_line do |l|
+    if (l.index("completed"))
+      fids << l.split.first
+      break if fids.size >= files_to_download
+    end
+  end
+  cd download_dir do 
+    system "#{LX_HOME}/lixian_cli.py download #{fids.join(' ')}"
+  end
 elsif (argv.first == "download")
-  download_dir = "/Volumes/Data/Downloads/"
   apath = File.expand_path(argv.last)
   if File.directory?(apath)
     download_dir = apath
@@ -126,7 +145,6 @@ elsif (argv.first == "download")
   elsif !File.directory?(download_dir)
     download_dir = pwd
   end
-
   cd download_dir do 
     if argv.last == "--clean"
       argv.pop;argv.shift
@@ -141,9 +159,12 @@ elsif (argv.first == "list" && (["c", "completed", "done"] & argv).size > 0)
   # I added this before I notice list command have an -n option.
   argv.shift
   (["c", "completed", "done"] & argv).each { |e| argv.delete(e)}
-  line_number = 0
+  line_number = 0; complete_number = 1;
   `#{LX_HOME}/lixian_cli.py list`.each_line do |l|
-    printf "%-3s %s", line_number, l if (l.index("completed"))
+    if (l.index("completed"))
+      printf "%-3s #%-3s %s", complete_number, line_number, l 
+      complete_number += 1
+    end
     line_number += 1
   end
 elsif (argv.first == "list" && argv.include?("--number"))
