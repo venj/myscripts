@@ -24,28 +24,21 @@ def detect(file)
   return [acodec, vcodec]
 end
 
-supported_files = []
-
-Dir["*.*"].each do |file|
-  ext = file.split(".").last
-  next unless VIDEO_CONTAINER.include?(ext.downcase)
-  supported_files << file
+def supported_files(noencode=false)
+  files = []
+  Dir["*.*"].each do |file|
+    acodec = detect(file)[0]
+    ext = file.split(".").last
+    next unless VIDEO_CONTAINER.include?(ext.downcase)
+    next if noencode && !ACODECS.include?(acodec)
+    files << file
+  end
+  files
 end
 
-if ARGV[0] == "info"
-  supported_files.each do |file|
-    acodec,vcodec = detect(file)
-    if VCODECS.include?(vcodec) && acodec != "aac"
-      puts "\"#{file}\" needs to re-encode audio track (acodec: \"#{acodec}\")."
-    elsif (!VCODECS.include?(vcodec))
-      puts "\"#{file}\" is not able to remux to M4V (vcodec: \"#{vcodec}\")."
-    else
-      puts "\"#{file}\" is M4V ready!"
-    end
-  end
-else
-  counter = 1;file_count = supported_files.size
-  supported_files.each do |file|
+def remux(noencode=false)
+  counter = 1;file_count = supported_files(noencode).size
+  supported_files(noencode).each do |file|
     ext = file.split(".").last
     name = File.basename file, ".#{ext}"
     outfile = "#{name}.m4v"
@@ -67,4 +60,21 @@ else
     puts "Done"
     counter += 1
   end
+end
+
+if ARGV[0] == "info"
+  supported_files.each do |file|
+    acodec,vcodec = detect(file)
+    if VCODECS.include?(vcodec) && acodec != "aac"
+      puts "\"#{file}\" needs to re-encode audio track (acodec: \"#{acodec}\")."
+    elsif (!VCODECS.include?(vcodec))
+      puts "\"#{file}\" is not able to remux to M4V (vcodec: \"#{vcodec}\")."
+    else
+      puts "\"#{file}\" is M4V ready!"
+    end
+  end
+elsif ARGV[0] == "noencode" || ARGV[0] == "nc"
+  remux(true)
+else
+  remux
 end
