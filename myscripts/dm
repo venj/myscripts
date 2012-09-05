@@ -135,8 +135,9 @@ def uniq_name(name)
 end
 
 case ARGV[0]
-when "list"
 when "l"
+  print_vols ARGV[1]
+when "list"
   print_vols ARGV[1]
 when "download"
 when "d"

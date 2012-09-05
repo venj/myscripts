@@ -13,9 +13,9 @@ pack_name = ARGV[0];book_name = ARGV[1..-1].join(" ")
 begin
   current_dir = pwd
   mkdir(book_name)
-  system %|unrar x #{pack_name} "#{book_name}"|
+  system %|unrar x "#{pack_name}" "#{book_name}"|
   cd book_name
-  rm "Readme.png"
+  rm "Readme.png" if File.exists?("Readme.png")
   files = Dir["**/*"].to_a
   if files.size == 1
     f = files.first

@@ -31,6 +31,6 @@ FileUtils.cd folder do
 
   Dir["*.rar"].each do |f|
     name = normalize(File.basename(f, ".rar"))
-    system %[my rename #{f} "#{name}"]
+    system %[my rename "#{f}" "#{name}"]
   end
 end
