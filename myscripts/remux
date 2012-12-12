@@ -12,7 +12,7 @@ if (`which ffmpeg` == "")
 end
 
 def detect(file)
-  system("ffprobe -v info #{file} > #{TMPFILE} 2>&1")
+  system("ffprobe -v info \"#{file}\" > #{TMPFILE} 2>&1")
   output = open(TMPFILE).read
   vregex = /Stream .+? Video: (\w+) /
   vmatch = vregex.match(output)

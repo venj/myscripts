@@ -8,7 +8,7 @@ PUBS = ["Oreilly", "Microsoft Publication", "Sitepoint", "Apress", "Simon Schust
         "Addison Wesley", "No Starch", "Pragmtic", "FriendsofED", "Peachpit Press", 
         "Peachpit", "Adobe Press", "McGraw Hill", "Packtpub", "New Riders", "Course", 
         "php architects", "Rockable Press", "Prentice Hall", "QUE", "Sams", "Pragmatic",
-        "TidBITS"]
+        "TidBITS", "ABookApart", "Microsoft Press"]
 
 def normalize(name)
   n = name.gsub(/\w{3,4}\.[0-9]{4}$/, "").gsub(/\.\w+\.Edition/i, "").gsub(/[^[:alnum:]]/, " ")

@@ -1,0 +1,5 @@
+#!/bin/bash
+# Clean up "Open With..." menu, if it is cluttered with duplicated items.
+
+/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister -kill -r -domain local -domain system -domain user
+
