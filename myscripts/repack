@@ -27,7 +27,7 @@ def repack(book, tmpdir)
       if covers.size == 0
         # If no cover found in root directory, try image directory.
         image_dir = []
-        image_dir = Dir["*"].delete_if{ |f| !(f.match(/image|img/i) && File.directory?(f))}[0]
+        image_dir = Dir["*"].delete_if{ |f| !(f.match(/image|img|cover|graphics/i) && File.directory?(f))}[0]
         if image_dir.size == 0
           puts "\nFailed to repack \"#{book}\": Image directory not found."
           return ERROR
