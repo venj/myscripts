@@ -1,0 +1,7 @@
+source 'http://ruby.taobao.org'
+
+gem 'hpricot'
+gem 'colorize'
+gem 'longurl'
+gem 'rmagick'
+

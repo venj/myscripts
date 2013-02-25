@@ -12,3 +12,6 @@ xcuserdata/
 lanpush
 bt
 test
+Gemfile.lock
+*.tmp
+
