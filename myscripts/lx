@@ -42,7 +42,7 @@ def preprocess(arr)
     when "first"
     when "f"
       argv << "download"
-      argv << "#0"
+      argv << "0"
     when "last"
     when "la"
       ids = get_ids
@@ -51,7 +51,7 @@ def preprocess(arr)
     when /^f\d+$/
       fid = arg.split("f").last.to_i
       argv << "download"
-      argv << "#0-#{fid-1}"
+      argv << "0-#{fid-1}"
     when "dfirst"
     when "df"
       ids = get_ids
