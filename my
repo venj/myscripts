@@ -44,6 +44,9 @@ else
         if [ $# -eq 0 ]; then
             echo "Available commands:"
             for file in `ls -1 $myscript_dir`;do
+                if [ $file == "Gemfile" ] || [ $file == "Gemfile.lock" ];then
+                    continue
+                fi
                 desc $file
             done
         else
