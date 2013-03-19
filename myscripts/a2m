@@ -1,0 +1,29 @@
+#!/usr/bin/env ruby
+# Transcode .avi (MJPEG) files to .m4v (H.264).
+
+require 'rubygems'
+require 'colorize'
+require 'shellwords'
+require 'fileutils'
+include FileUtils
+
+dirs = []
+if ARGV.size == 0
+  dirs << pwd
+else
+  dirs = ARGV
+end
+
+dirs.each do |d|
+  next unless File.directory?(d)
+  cd d do
+    Dir["*"].each do |f|
+      next if f == File.basename(__FILE__)
+      next unless f.downcase.index("avi")
+      fname = File.basename(f.downcase, '.avi').upcase
+      print "Encoding #{f}..."
+      system("ffmpeg -v error -i #{f.shellescape} -map_metadata 0:g -acodec libfaac -ab 256 -ar 44100 -ac 1  -c:v h264 #{fname}.m4v")
+      puts "done.".green
+    end
+  end
+end
