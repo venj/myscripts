@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 # Remux MP4/H264 videos (mkv, avi, etc.) to m4v.
-
+require 'shellwords'
 TMPFILE = "/tmp/ffprobe_out.txt"
 VIDEO_CONTAINER = ["mkv", "f4v", "avi", "divx", "ts"]
 VCODECS = ["mpeg4", "h264"]
@@ -12,12 +12,12 @@ if (`which ffmpeg` == "")
 end
 
 def detect(file)
-  system("ffprobe -v info \"#{file}\" > #{TMPFILE} 2>&1")
+  system("ffprobe -v info #{file.shellescape} > #{TMPFILE} 2>&1")
   output = open(TMPFILE).read
-  vregex = /Stream .+? Video: (\w+) /
+  vregex = /Stream .+? Video: (\w+)/
   vmatch = vregex.match(output)
   vcodec = vmatch[1] unless vmatch.nil?
-  aregex = /Stream .+? Audio: (\w+) /
+  aregex = /Stream .+? Audio: (\w+)/
   amatch = aregex.match(output)
   acodec = amatch[1] unless amatch.nil?
   File.unlink TMPFILE
@@ -26,10 +26,10 @@ end
 
 def supported_files(noencode=false)
   files = []
-  Dir["*.*"].each do |file|
-    acodec = detect(file)[0]
+  Dir["**/*"].each do |file|
     ext = file.split(".").last
     next unless VIDEO_CONTAINER.include?(ext.downcase)
+    acodec = detect(file)[0]
     next if noencode && !ACODECS.include?(acodec)
     files << file
   end
@@ -53,9 +53,9 @@ def remux(noencode=false)
     other_opt = "-absf aac_adtstoasc" #if ext.downcase == "ts"
     File.unlink outfile if File.exists?(outfile)
     if ACODECS.include?(acodec)
-      system("ffmpeg -v error -i '#{file}' -c:a copy -c:v copy #{other_opt} '#{outfile}'")
+      system("ffmpeg -v error -i #{file.shellescape} -c:a copy -c:v copy #{other_opt} #{outfile.shellescape}")
     else
-      system("ffmpeg -v error -i '#{file}' -c:a:192 aac -c:v copy #{other_opt} '#{outfile}'")
+      system("ffmpeg -v error -i #{file.shellescape} -c:a:192 aac -c:v copy #{other_opt} #{outfile.shellescape}")
     end
     puts "Done"
     counter += 1

@@ -2,6 +2,7 @@
 # This script is a wrapper for Xunlei-lixian python script. 
 # Of cause, you should clone xunlei-lixian source code to /usr/local/bin.
 
+require "shellwords"
 require "FileUtils"
 include FileUtils
 
@@ -155,6 +156,13 @@ elsif (argv.first == "download")
       system("#{LX_HOME}/lixian_cli.py download #{argv.join(" ")}")
     end
   end
+elsif (argv.first == "add")
+  argv.shift
+  files = []
+  argv.each do |arg|
+    files << Shellwords.escape(arg)
+  end
+  system("#{LX_HOME}/lixian_cli.py add #{files.join(" ")}")
 elsif (argv.first == "list" && (["c", "completed", "done"] & argv).size > 0)
   # I added this before I notice list command have an -n option.
   argv.shift
