@@ -1,1 +1,0 @@
-<dt><span class="filename"><a href="txmt://open?url=file:///usr/local/bin/myscripts/bt_alt&line=34">bt_alt:34 -- /usr/local/bin/myscripts</a></span><br><div class="code">from_page = ARGV[0].to_i || 1</div></dt>
