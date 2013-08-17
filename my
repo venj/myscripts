@@ -5,7 +5,7 @@ myscript_dir=/usr/local/bin/myscripts
 desc() {
     spath=$myscript_dir/$1
     line=`sed -n 2p $spath`
-    match=`echo $line|grep -c -i -E '#[[:space:]]?encoding[[:space:]]?='`
+    match=`echo $line|grep -c -i -E '#[[:space:]]?encoding[[:space:]]?[=|:]'`
     if [ $match -gt 0 ];then         
         line=$(sed -n 3p $spath)
     fi

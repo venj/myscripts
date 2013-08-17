@@ -17,6 +17,7 @@ def usage
   puts "ftp".blue + "        Turn on/off FTP service on OS X Lion and up".yellow
   puts "tmlocal".blue + "    Turn on/off Time Machine local snapshot on OS X Lion and up".yellow
   puts "keyrepeat".blue + "  Turn on/off long press a key to input euro chars on OS X Lion and up".yellow
+  puts "masdebug".blue + "   Turn on/off Debug menu in Mac App Store".yellow
 end
 
 def sysver
@@ -60,7 +61,10 @@ when "tmlocal"
   system("sudo tmutil #{option ? "enablelocal" : "disablelocal" }")
 when "keyrepeat"
   verreq("7+")
-  system("defaults write ApplePressAndHoldEnabled -bool #{option ? true : false }")
+  system("defaults write -g ApplePressAndHoldEnabled -bool #{option ? "true" : "false" }")
+when "masdebug"
+  verreq("7+")
+  system("defaults write com.apple.appstore ShowDebugMenu -bool #{option ? "true" : "false" }")
 else
   puts "No suck tweak: " + "#{feature}".red + "."
 end

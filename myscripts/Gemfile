@@ -1,6 +1,8 @@
 source 'http://ruby.taobao.org'
 
 gem 'hpricot'
+gem 'nokogiri'
+gem 'iconv'
 gem 'colorize'
 gem 'rmagick'
 

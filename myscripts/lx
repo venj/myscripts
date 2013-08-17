@@ -4,6 +4,7 @@
 
 require "shellwords"
 require "FileUtils"
+require "colorize"
 include FileUtils
 
 LX_HOME = "/usr/local/bin/xunlei-lixian"
@@ -15,6 +16,19 @@ def get_ids
     ids << l.split(" ").first
   end
   ids
+end
+
+def get_size(s)
+  size = s.to_i
+  if size > 1024 * 1024 * 1024
+    "#{size / (1024 * 1024 * 1024)}GB"
+  elsif size > 1024 * 1024
+    "#{size / (1024 * 1024)}MB"
+  elsif size > 1024
+    "#{size / 1024}B"
+  else
+    "#{size}B"
+  end
 end
 
 def preprocess(arr)
@@ -175,13 +189,15 @@ elsif (argv.first == "list" && (["c", "completed", "done"] & argv).size > 0)
     end
     line_number += 1
   end
-elsif (argv.first == "list" && argv.include?("--number"))
-  # I added this before I notice list command have an -n option.
-  argv.shift;argv.delete("--number")
-  line_number = 0
-  `#{LX_HOME}/lixian_cli.py list`.each_line do |l|
-    printf "%-3s %s", line_number, l
-    line_number += 1
+elsif (argv.first == "list")
+  `#{LX_HOME}/lixian_cli.py list --size`.each_line do |l|
+    parts = l.split(/\s+/)
+    if parts[parts.size - 2] == "completed"
+      color = "green"
+    else
+      color = "red"
+    end
+    puts "#{parts[0..parts.size - 2].join(" ")} #{get_size parts.last}".send(color)
   end
 elsif (argv.first == "dnd" && argv.size > 1)
   argv.shift
