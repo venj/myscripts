@@ -1,0 +1,103 @@
+#!/usr/bin/env ruby
+# Make icns file for Mac App Store from a large image file.
+
+require "fileutils"
+require "rmagick"
+require "colorize"
+include FileUtils
+include Magick
+
+class PPNotSquareShapeError < StandardError;end
+class PPFileTooSmallError < StandardError;end
+
+def resize(image, width)
+  image.scale(width, width)
+end
+
+def make_icon(icon_file)
+  image = Image.read(icon_file)[0]
+  fileinfo = image.inspect.split(" ")
+  w,h = fileinfo[2].split("x").collect(&:to_i)
+
+  raise PPNotSquareShapeError.new("Image file is not in square shape!") if w != h
+  raise PPFileTooSmallError.new("Image file is too small(less than 512x512)!") if w < 512
+  
+  retina_compatible = (w >= 1024)
+
+  puts "Warning: #{icon_file} is not large enough to make a retina compatible icon.".yellow if !retina_compatible
+
+  icon_name = File.basename(icon_file, ".png")
+  directory = icon_name + ".xcassets"
+
+  rm_rf directory if File.directory?(directory)
+  mkdir directory
+
+  cd directory do
+    if w > 1024
+      resize(image, 1024).write("icon_512x512@2x.png")
+    elsif w == 1024
+      image.write("icon_512x512@2x.png")
+    end
+    if w > 512
+      i_512 = resize(image, 512)
+      i_512.write("icon_512x512.png")
+    elsif w == 512
+      image.write("icon_512x512.png")
+    end
+
+    #iOS 6
+    i_114 = resize(image, 114)
+    i_114.write("Icon-57@2x.png")
+    i_57 = resize(image, 57)
+    i_57.write("Icon-57.png")
+    i_144 = resize(image, 144)
+    i_144.write("Icon-72@2x.png")
+    i_72 = resize(image, 72)
+    i_72.write("Icon-72.png")
+    i_58 = resize(image, 58)
+    i_58.write("Icon-29@2x.png")
+    i_29 = resize(image, 29)
+    i_29.write("Icon-29.png")
+    
+    #iOS7
+    i_120 = resize(image, 120)
+    i_120.write("Icon-60@2x.png")
+    i_60 = resize(image, 60)
+    i_60.write("Icon-60.png")
+    i_152 = resize(image, 152)
+    i_152.write("Icon-76@2x.png")
+    i_76 = resize(image, 76)
+    i_76.write("Icon-76.png")
+    i_100 = resize(image, 100)
+    i_100.write("Icon-50@2x.png")
+    i_50 = resize(image, 50)
+    i_50.write("Icon-50.png")
+    i_80 = resize(image, 80)
+    i_80.write("Icon-40@2x.png")
+    i_40 = resize(image, 40)
+    i_40.write("Icon-40.png")
+  end
+end
+
+def usage
+  puts "my #{File.basename $0} [PNG_FILE ...]"
+end
+
+if __FILE__ == $0
+  (usage;exit 0) if ARGV.size == 0
+  argv = ARGV.uniq
+
+  argv.each do |arg|
+    next if File.directory?(arg)
+    begin
+      make_icon(arg)
+    rescue PPNotSquareShapeError => e
+      print "Error making icns for image \"#{arg}\": "
+      puts e.message.red
+    rescue PPFileTooSmallError => e
+      print "Error making icns for image \"#{arg}\": "
+      puts e.message.red
+    end
+  end
+end
+
