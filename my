@@ -3,14 +3,16 @@
 myscript_dir=/usr/local/bin/myscripts
 
 desc() {
-    spath=$myscript_dir/$1
-    line=`sed -n 2p $spath`
-    match=`echo $line|grep -c -i -E '#[[:space:]]?encoding[[:space:]]?='`
-    if [ $match -gt 0 ];then
-        line=$(sed -n 3p $spath)
+    if [ $1 != "Gemfile" ] && [ $1 != "Gemfile.lock" ];then
+        spath=$myscript_dir/$1
+        line=`sed -n 2p $spath`
+        match=`echo $line|grep -c -i -E '#[[:space:]]?encoding[[:space:]]?='`
+        if [ $match -gt 0 ];then
+            line=$(sed -n 3p $spath)
+        fi
+        printf "\033[34m%-20s" $1
+        echo "\033[33m$line"
     fi
-    printf "\033[34m%-20s" $1
-    echo "\033[33m$line"
 }
 
 usage() {

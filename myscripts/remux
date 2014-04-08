@@ -5,6 +5,7 @@ TMPFILE = "/tmp/ffprobe_out.txt"
 VIDEO_CONTAINER = ["mkv", "f4v", "avi", "divx", "ts"]
 VCODECS = ["mpeg4", "h264"]
 ACODECS = ["aac"]
+RESULTS = ["mp4", "m4v"]
 
 if (`which ffmpeg` == "")
   puts "You need ffmpeg to use this command."
@@ -31,8 +32,10 @@ def supported_files(noencode=false, forceencode=false)
   files = []
   Dir["**/*"].each do |file|
     ext = file.split(".").last
-    next unless VIDEO_CONTAINER.include?(ext.downcase) or forceencode
+    next if VIDEO_CONTAINER.include?(ext.downcase) or forceencode
     acodec = detect(file)[0]
+    next if acodec.nil?
+    next if RESULTS.include?(ext)
     next if noencode && !ACODECS.include?(acodec) && !forceencode
     files << file
   end
@@ -49,7 +52,7 @@ def remux(noencode=false, forceencode=false)
     unless VCODECS.include?(vcodec)
       (puts "#{file}: video codec \"#{vcodec}\" is not compatible with m4v."; next) if !forceencode
     end
-    print "Remuxing #{file} (#{counter}/#{file_count})..."
+    print "#{forceencode ? "Encoding" : "Remuxing"} #{file} (#{counter}/#{file_count})..."
 
     other_opt = ""
     other_opt = "-absf aac_adtstoasc" if ext.downcase == "ts"
