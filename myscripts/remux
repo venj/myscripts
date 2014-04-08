@@ -34,7 +34,8 @@ def supported_files(noencode=false, forceencode=false)
     ext = file.split(".").last
     next if VIDEO_CONTAINER.include?(ext.downcase) or forceencode
     acodec = detect(file)[0]
-    next if acodec.nil?
+    vcodec = detect(file)[1]
+    next if vcodec.nil?
     next if RESULTS.include?(ext)
     next if noencode && !ACODECS.include?(acodec) && !forceencode
     files << file
