@@ -5,8 +5,8 @@ myscript_dir=/usr/local/bin/myscripts
 desc() {
     spath=$myscript_dir/$1
     line=`sed -n 2p $spath`
-    match=`echo $line|grep -c -i -E '#[[:space:]]?encoding[[:space:]]?[=|:]'`
-    if [ $match -gt 0 ];then         
+    match=`echo $line|grep -c -i -E '#[[:space:]]?encoding[[:space:]]?='`
+    if [ $match -gt 0 ];then
         line=$(sed -n 3p $spath)
     fi
     printf "\033[34m%-20s" $1
@@ -18,9 +18,7 @@ usage() {
     echo "\033[0mHelp: "
     echo "\033[34m help  (h)       \033[33mshow this help (also, --h, -h)"
     echo "\033[34m list  (l)       \033[33mshow all available commands"
-    echo "\033[34m -     ll        \033[33mshow all available commands, long format"
-    echo "\033[34m -     la        \033[33mshow all available commands, full format"
-    echo "\033[34m info  (n)       \033[33mshow command description"
+    echo "\033[34m info  (i)       \033[33mshow same to \`list\` command"
     echo "\033[34m edit  (e)       \033[33medit my script"
     echo "\033[34m del   (d)       \033[33mdelete a script, also 'delete'"
     echo "\033[34m cat   (c)       \033[33mprint script source code"
@@ -34,19 +32,10 @@ if [ $# -lt 1 ]; then
 else
     cmd=$1
     shift 1
-    if [ "$cmd" == "list" ] || [ "$cmd" == "l" ] ; then
-        ls -G $myscript_dir
-    elif [ "$cmd" == "ll" ] ; then
-        ls -lG $myscript_dir
-    elif [ "$cmd" == "la" ] || [ "$cmd" == "al" ] ; then
-        ls -laG $myscript_dir
-    elif [ "$cmd" == "info" ] || [ "$cmd" == "n" ]; then
+    if [ "$cmd" == "info" ] || [ "$cmd" == "i" ] || [ "$cmd" == "list" ] || [ "$cmd" == "l" ]; then
         if [ $# -eq 0 ]; then
             echo "Available commands:"
             for file in `ls -1 $myscript_dir`;do
-                if [ $file == "Gemfile" ] || [ $file == "Gemfile.lock" ];then
-                    continue
-                fi
                 desc $file
             done
         else
@@ -82,7 +71,7 @@ else
                     else
                         echo ${script} does not exists.
                     fi
-                    
+
                 fi
             done
             unset script

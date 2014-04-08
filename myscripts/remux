@@ -20,42 +20,46 @@ def detect(file)
   aregex = /Stream .+? Audio: (\w+)/
   amatch = aregex.match(output)
   acodec = amatch[1] unless amatch.nil?
+  brregex = /bitrate:\s+(\d+)\s+kb/i
+  brmatch = brregex.match(output)
+  bitrate = brmatch.nil? ? 640 : brmatch[1].to_i
   File.unlink TMPFILE
-  return [acodec, vcodec]
+  return [acodec, vcodec, bitrate]
 end
 
-def supported_files(noencode=false)
+def supported_files(noencode=false, forceencode=false)
   files = []
   Dir["**/*"].each do |file|
     ext = file.split(".").last
-    next unless VIDEO_CONTAINER.include?(ext.downcase)
+    next unless VIDEO_CONTAINER.include?(ext.downcase) or forceencode
     acodec = detect(file)[0]
-    next if noencode && !ACODECS.include?(acodec)
+    next if noencode && !ACODECS.include?(acodec) && !forceencode
     files << file
   end
   files
 end
 
-def remux(noencode=false)
+def remux(noencode=false, forceencode=false)
   counter = 1;file_count = supported_files(noencode).size
   supported_files(noencode).each do |file|
     ext = file.split(".").last
     name = File.basename file, ".#{ext}"
     outfile = "#{name}.m4v"
-    acodec,vcodec = detect(file)
+    acodec,vcodec,bitrate = detect(file)
     unless VCODECS.include?(vcodec)
-      puts "#{file}: video codec \"#{vcodec}\" is not compatible with m4v."
-      next
+      (puts "#{file}: video codec \"#{vcodec}\" is not compatible with m4v."; next) if !forceencode
     end
     print "Remuxing #{file} (#{counter}/#{file_count})..."
 
     other_opt = ""
-    other_opt = "-absf aac_adtstoasc" #if ext.downcase == "ts"
+    other_opt = "-absf aac_adtstoasc" if ext.downcase == "ts"
     File.unlink outfile if File.exists?(outfile)
     if ACODECS.include?(acodec)
       system("ffmpeg -v error -i #{file.shellescape} -c:a copy -c:v copy #{other_opt} #{outfile.shellescape}")
-    else
+    elsif !forceencode
       system("ffmpeg -v error -i #{file.shellescape} -c:a:192 aac -c:v copy #{other_opt} #{outfile.shellescape}")
+    else
+      system("ffmpeg -v error -i #{file.shellescape} -c:a:192 aac -c:v:#{bitrate} h264 #{other_opt} #{outfile.shellescape}")
     end
     puts "Done"
     counter += 1
@@ -75,6 +79,8 @@ if ARGV[0] == "info"
   end
 elsif ARGV[0] == "noencode" || ARGV[0] == "nc"
   remux(true)
+elsif ARGV[0] == "forceencode" || ARGV[0] == "fe"
+  remux(false, true)
 else
   remux
 end

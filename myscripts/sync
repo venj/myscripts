@@ -5,7 +5,7 @@ require "FileUtils"
 include FileUtils
 
 script_dir = "/usr/local/bin"
-dest_dir = "/Volumes/Data/Developer.localized/github/myscripts/"
+dest_dir = "#{ENV['HOME']}/Developer.localized/github/myscripts/"
 
 scripts_arr = dest_arr = []
 cd script_dir do

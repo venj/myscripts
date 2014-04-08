@@ -3,13 +3,13 @@
 
 require "fileutils"
 
-PUBS = ["Oreilly", "Microsoft Publication", "Sitepoint", "Apress", "Simon Schuster",
+PUBS = ["AWP", "Oreilly", "Microsoft Publication", "Sitepoint", "Apress", "Simon Schuster",
         "Wiley", "Wrox", "For Dummies", "Springer", "Manning", "Smashing", "Sybex", 
         "Addison Wesley", "No Starch", "Pragmtic", "FriendsofED", "Peachpit Press", 
         "Peachpit", "Adobe Press", "McGraw Hill", "Packtpub", "New Riders", "Course", 
         "php architects", "Rockable Press", "Prentice Hall", "QUE", "Sams", "Pragmatic",
         "TidBITS", "ABookApart", "Microsoft Press", "Pactpub", "FSS", "Artima", "MK",
-        "Rocky Nook", "TidBITS"]
+        "Rocky Nook", "TidBITS", "Leanpub", "PB"]
 
 def normalize(name)
   n = name.gsub(/\w{3,4}\.[0-9]{4}$/, "").gsub(/\.\w+\.Edition/i, "").gsub(/[^[:alnum:]]/, " ")
