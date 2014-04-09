@@ -1,0 +1,69 @@
+#!/usr/bin/env ruby
+# Rotate video files.
+require 'shellwords'
+require 'colorize'
+
+TMPFILE = "/tmp/ffprobe_out.txt"
+IMAGES = ["mjpeg", "jpg", "jpeg", "png", "gif"]
+
+if (`which ffmpeg` == "")
+  puts "You need ffmpeg to use this command."
+  exit 1
+end
+
+def detect(file)
+  system("ffprobe -v info #{file.shellescape} > #{TMPFILE} 2>&1")
+  output = open(TMPFILE).read
+  vregex = /Stream .+? Video: (\w+)/
+  vmatch = vregex.match(output)
+  vcodec = vmatch[1] unless vmatch.nil?
+  aregex = /Stream .+? Audio: (\w+)/
+  amatch = aregex.match(output)
+  acodec = amatch[1] unless amatch.nil?
+  File.unlink TMPFILE
+  return [acodec, vcodec]
+end
+
+def is_video(file)
+  vcodec = detect(file)[1]
+  return false if vcodec.nil?             # Skip non-video files
+  return false if IMAGES.include?(vcodec) # Skip common image files
+  true
+end
+
+def usage
+  puts "Usage: ".magenta + "my #{File.basename __FILE__} [-arg] [files...]".light_blue
+  puts
+  puts "args:".magenta
+  puts "0".blue + "    Flip horizontally".yellow
+  puts "1".blue + "    Rotate 90 degrees clockwise".yellow
+  puts "2".blue + "    Rotate 90 degrees counter-clockwise".yellow
+  puts "3".blue + "    Flip vertically and rotate 90 degrees clockwise".yellow
+end
+
+if ARGV.size == 0
+  usage
+  exit 0
+end
+
+if ARGV.first =~ /-\d/
+  arg = ARGV.first[1]
+  files = ARGV[1..ARGV.size]
+else
+  arg = "1"
+  files = ARGV
+end
+
+files.each do |file|
+  if is_video(file)
+    ext = file.split(".").last
+    basename = File.basename(file, ".#{ext}")
+    outfile = "#{basename}_#{arg}_rotated.#{ext}"
+    print "Rotating #{file}..."
+    system("ffmpeg -v error -i #{file.shellescape} -vf 'transpose=#{arg}' #{outfile.shellescape}")
+    puts "Done.".green
+  else
+    print "#{file}: "
+    puts "not a video file.".yellow
+  end
+end
