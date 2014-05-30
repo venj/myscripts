@@ -9,12 +9,12 @@ PUBS = ["AWP", "Oreilly", "Microsoft Publication", "Sitepoint", "Apress", "Simon
         "Peachpit", "Adobe Press", "McGraw Hill", "Packtpub", "New Riders", "Course", 
         "php architects", "Rockable Press", "Prentice Hall", "QUE", "Sams", "Pragmatic",
         "TidBITS", "ABookApart", "Microsoft Press", "Pactpub", "FSS", "Artima", "MK",
-        "Rocky Nook", "TidBITS", "Leanpub", "PB"]
+        "Rocky Nook", "TidBITS", "Leanpub", "PB", "PP", "FD", "Smashing"]
 
 def normalize(name)
   n = name.gsub(/\w{3,4}\.[0-9]{4}$/, "").gsub(/\.\w+\.Edition/i, "").gsub(/[^[:alnum:]]/, " ")
   PUBS.each do |p|
-    r = Regexp.new(p, true)
+    r = Regexp.new("^#{p}", true)
     next unless r.match(n)
     return n.gsub(r, "").strip
   end
