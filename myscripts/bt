@@ -1,0 +1,236 @@
+#!/usr/bin/env ruby
+# Download torrents from SOME WEBSITE.
+
+require "rubygems"
+require "open-uri"
+require "hpricot"
+require "uri"
+require "colorize"
+require 'uri'
+require 'net/http'
+
+# Global vars
+website = "http://www.javjunkies.com"
+download_base = nil
+base_uri = "#{website}/main/page/"
+mainpage_index = 1 # Change to 1 next day #93
+IMG_PROXY = nil
+PG_PROXY = nil#"http://188.128.99.94:3128"
+MAX_RETRY = 5
+USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9) AppleWebKit/537.51.3 (KHTML, like Gecko) Version/7.0 Safari/537.51.3
+"
+
+# Exceptions Classes
+class DownloadLimitError < StandardError;end
+class ServerOverLoadError < StandardError;end
+class TorrentServerError < StandardError;end
+class TorrentNotFoundException < StandardError;end
+class LinkRedirectException < StandardError;end
+class SiteMaintenanceException < StandardError;end
+
+# Local URL Expander Class
+class Expander
+  def self.expand(url)
+    open("http://venj.me/url.php?shorturl=#{url}").read.strip
+  end
+end
+
+def skip_page?(page)
+  open('.finished').readlines.include?(page + "\n") ? true : false
+end
+
+def add_page(page)
+  open('.finished', 'a+') {|f| f.puts page }
+end
+
+def get_baselink(text)
+  func_name_regex = /<a +name=.*? +on[Cc]lick=['"](.*?)\(/
+  func_name = text.match(func_name_regex)[1]
+  js_regex = /<script ?type=['"]text\/javascript['"]> ?function ?.+?\([^\n]+/
+  baselink = ""
+  text.scan(js_regex).each do |t|
+    if t.index(func_name)
+      baseregex = /window\.open\("(http:\/\/(www.)?javjunkies\.com\/[^"]+)"/
+      baselink = t.match(baseregex)[1]
+      break
+    end
+  end
+  baselink
+end
+
+
+# Just loop it.
+while true
+  # Grab main page (daily list.)
+  print "\nOpening posts page: #{mainpage_index}..."
+  html = open("#{base_uri}#{mainpage_index}/", :proxy => PG_PROXY, "User-Agent" => USER_AGENT).read
+  html = open("#{website}/main/", :proxy => PG_PROXY, "User-Agent" => USER_AGENT).read if mainpage_index == 1
+  begin
+    raise SiteMaintenanceException.new if html.index("Site Maintenance")
+  rescue SiteMaintenanceException => e
+    puts "Maintenance.\n".yellow
+    break
+  end
+  puts
+  maindoc = Hpricot(html)
+  maindoc.search("//div[@class='post']/div[@class='entry']/a").each do |entry|
+    onclick = entry.attributes["onclick"]
+    next if onclick =~ /window.open/ # Skip the fake daily list.
+    page_uri = onclick.match(/location.href='([^']+)'/)[1]
+    begin
+      # Grab daily pagination.
+      print "Opening #{URI::parse(page_uri).path}..."
+      (puts "skip day!".green; next) if skip_page?(page_uri)
+      puts
+      page_content = open(page_uri, :proxy => PG_PROXY, "User-Agent" => USER_AGENT).read
+      download_base = get_baselink(page_content)
+      page_doc = Hpricot(page_content)
+    rescue Exception => e
+      puts "Finished or Unknow error...".red
+      puts e.message
+      exit 1
+    end
+
+    # Get pagination (page count)
+    begin
+      lastpage_index = page_doc.search("//p/font/a").last.inner_html.to_i
+    rescue Exception => e
+      lastpage_index = 1
+    end
+    filename_base = File.basename(File.dirname(page_uri)) + "_" + File.basename(page_uri)
+    print "Processing #{filename_base}, "; puts "#{lastpage_index} pages...".green
+
+    # Fetch the daily list.
+    (1..lastpage_index).each do |i|
+      refererLink = "#{page_uri}#{i}/"
+      print "  parse page #{i}: torrent "
+      (puts "...skip page!".green; next) if skip_page?(refererLink)
+      if i == 1
+        pagination_doc = page_doc
+      else
+        pagination_doc = Hpricot(open(refererLink, :proxy => PG_PROXY, "User-Agent" => USER_AGENT).read)
+      end
+
+      # Fetch torrents and images
+      tr_count = 1
+      pagination_doc.search("//div[@class='post']/div[@class='entry']/div[@class='image']").each do |e|
+        next if e.search("div").size < 1 # Skip fake torrent post, 2013-03-13.
+        print "#{tr_count}"; tr_count += 1
+        # Try to skip un-needed file formats, but its not usable for now.
+        skip_torrent = false
+        e.search("span") do |span|
+          html_text = span.inner_html
+          begin
+            skip_torrent = true if html_text =~ /\.[iso|mds]/ # allow wmv torrent.
+          rescue Exception => e
+            skip_torrent = true
+          end
+        end
+        (print "f".yellow; print ", ";next) if skip_torrent
+        # This is where real download begins.
+        e.search("a") do |a|
+          # Build the torrent link.
+          link_regx = /.+\('([^']+)'\)/
+          #puts a.attributes["onclick"].match(link_regx)[1]
+          (print "e".magenta; print ", ";next) if a.attributes["onclick"] !~ link_regx
+          tr_link = download_base + a.attributes["onclick"].match(link_regx)[1]
+          # puts tr_link
+
+          # Build the image link
+          image_link_regx = /url\('([^']+)'\)/
+          image_link_t = e.search("//div")[0].attributes["style"].match(image_link_regx)[1]
+
+          # Expand the image short link.
+          retry_counts = 0
+          while retry_counts < MAX_RETRY
+            begin
+              image_link = Expander.expand(image_link_t)
+            rescue StandardError => e
+              retry_counts += 1
+            end
+            break if image_link
+          end
+
+          # Build image name and torrent name for save to disk.
+          image_filename = filename_base + "." + image_link.split("/").last
+          tr_filename = ""
+          if tr_filename.split(".").last == "torrent"
+            tr_filename = filename_base + "_" + tr_link.split("/").last
+          else
+            tr_filename = filename_base + "_" + image_link.split("/").last.split(".")[0] + ".torrent"
+          end
+          # Skip the torrent and image if exists.
+          (print "s".blue;print ", ";next) if ((File.exists? tr_filename) && (File.exists? image_filename))
+          ftext = ""
+          begin
+            print ", "
+            # Download torrent
+            unless File.exists? tr_filename # Skip it if torrent exists.
+              open(URI.encode(tr_link), "referer" => refererLink, :proxy => PG_PROXY, "User-Agent" => USER_AGENT) do |inf|
+                ftext = inf.read
+                #puts ftext
+                # Raise exceptions according to different conditions.
+                raise DownloadLimitError.new if ftext.index "You reached your download limit."
+                raise ServerOverLoadError if ftext.index "Server under heavy load, please try again later!"
+                raise TorrentServerError.new if ftext.index "Internal Server Error"
+                raise TorrentNotFoundException.new if ftext.index "Error 404"
+                raise LinkRedirectException.new if ftext[0..20].index("html")
+                open(tr_filename, "w+") do |ouf|
+                  ouf.write(ftext)
+                end
+              end
+            end
+          rescue DownloadLimitError => err
+            print "gocha!\n".red
+            puts "Daily download limit reached. Please retry tomorrow.\n".red
+            exit
+          rescue ServerOverLoadError => err
+            print "damn!\n".red
+            puts "Server is under heavy load. Really?!\n".red
+            exit
+          rescue TorrentServerError => err
+            print "ouch!\n".red
+            puts "Torrent server 500 internal error.\n".red
+            exit
+          rescue TorrentNotFoundException => err
+            print "\b\b"
+            print "?".yellow
+            print ", "
+          rescue LinkRedirectException => err
+            print "fuck!\n".red
+            puts "Script broken!!!".red
+            exit
+          rescue Exception => err
+            puts "Error downloading torrent.\n".red
+            puts err.message
+            exit
+          end
+
+          # Download image for the torrent
+          next if File.exists? image_filename  # Skip it if image exists.
+          retry_counts = 0
+          while retry_counts < MAX_RETRY
+            begin
+              open(image_link, :proxy => IMG_PROXY, "User-Agent" => USER_AGENT) do |inf|
+                open(image_filename, "w+") do |ouf|
+                  ouf.write(inf.read)
+                end
+              end
+            rescue StandardError => err
+              retry_counts += 1
+              puts "Error downloading image: #{image_filename} (#{err.message}), retry.".red
+              puts "#{image_link} , retry...".red
+            else
+              break # Success if exec to here.
+              sleep 10
+            end
+          end
+        end
+      end
+      add_page(refererLink)
+      puts "done.".green # One daily list pagination finished
+    end
+    add_page(page_uri)
+  end
+  mainpage_index += 1 # One day finished.
+end
