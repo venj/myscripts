@@ -10,8 +10,8 @@ xcuserdata/
 
 # Ignore some script
 lanpush
-bt
-bt_alt
+#bt
+#bt_alt
 test
 Gemfile.lock
 *.tmp
