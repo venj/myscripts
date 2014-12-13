@@ -2,7 +2,7 @@
 # Remux MP4/H264 videos (mkv, avi, etc.) to m4v.
 require 'shellwords'
 TMPFILE = "/tmp/ffprobe_out.txt"
-VIDEO_CONTAINER = ["mkv", "f4v", "avi", "divx", "ts"]
+VIDEO_CONTAINER = ["mkv", "f4v", "avi", "divx", "ts", "3gp"]
 VCODECS = ["mpeg4", "h264"]
 ACODECS = ["aac"]
 RESULTS = ["mp4", "m4v"]
