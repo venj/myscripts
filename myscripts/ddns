@@ -1,0 +1,3 @@
+#!/bin/sh
+
+/usr/bin/curl https://zzzz.io/api/v1/update/venj/?token=7f1cd312-0bd1-4c6f-a1f0-b4dd33c6676c
