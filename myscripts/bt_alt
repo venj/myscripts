@@ -15,7 +15,7 @@ trap("INT") { exit 0 }
 
 USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.8; rv:19.0) Gecko/20100101 Firefox/19.0"
 turl="http://www.forp2p.com/load.php"
-uri = 'http://www.mimivv.com/'
+uri = 'http://www.skymimi.com/'
 path = "/Users/venj/Documents/Office_LAN"
 proxy_addr = "127.0.0.1"
 proxy_port = 8087
