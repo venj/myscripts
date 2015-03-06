@@ -14,7 +14,6 @@ require 'date'
 trap("INT") { exit 0 }
 
 USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.8; rv:19.0) Gecko/20100101 Firefox/19.0"
-turl="http://www.forp2p.com/load.php"
 uri = 'http://www.skymimi.com/'
 path = "/Users/venj/Documents/Office_LAN"
 proxy_addr = "127.0.0.1"
@@ -32,7 +31,21 @@ else
   puts "No Proxy "
 end
 
-#先访问下主页
+# 解析Cookie
+print "Parsing Cookie...".magenta
+cookie_regex = /document\.cookie='([^']+?)'/
+doc_text = open(uri, options).read.encode("utf-8", "gb18030")
+if doc_text =~ cookie_regex
+  doc_text.scan(cookie_regex) do |match|
+    cookie = match[0]
+    if cookie.nil? or cookie.size = 0
+      raise "Cookie fetch failed. Site may updated!!!"
+    end
+    options["Cookie"] = cookie
+    puts "done.".green
+  end
+end
+
 #open uri, options
 if ARGV.size == 2
   from, to = ARGV[0].to_i, ARGV[1].to_i
@@ -88,7 +101,8 @@ for i in from..to do
               Dir.mkdir date_dir
             end
             
-            code = m[4].split('=')[1]
+            lk, code = m[4].split('=')
+            turl ||= lk.split("?").first.sub(/link\.php/, "load.php")
             
             torrent_filename = File.join date_dir, "#{code}.torrent"
             if !File.exist?(torrent_filename)

@@ -72,6 +72,19 @@ def remux(noencode=false, forceencode=false)
   end
 end
 
+def sub
+  counter = 1;file_count = supported_files.size
+  supported_files.each do |file|
+    ext = file.split(".").last
+    name = File.basename file, ".#{ext}"
+    outfile = "#{name}.srt"
+    print "Extracting subtitle from #{file} (#{counter}/#{file_count})..."
+    system("ffmpeg -v error -i #{file.shellescape} -codec srt #{outfile.shellescape}")
+    puts "Done"
+    counter += 1
+  end
+end
+
 if ARGV[0] == "info"
   supported_files.each do |file|
     acodec,vcodec = detect(file)
@@ -87,6 +100,8 @@ elsif ARGV[0] == "noencode" || ARGV[0] == "nc"
   remux(true)
 elsif ARGV[0] == "forceencode" || ARGV[0] == "fe"
   remux(false, true)
+elsif ARGV[0] == "sub" || ARGV[0] == "s"
+  sub
 else
   remux
 end
