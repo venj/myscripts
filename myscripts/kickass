@@ -55,6 +55,7 @@ def parse_image(row)
       content = open(link).read
     rescue Exception => e
       STDERR.puts "Skip #{bango}."
+      return
     end
     iregex = /img id="video_jacket_img" src="([^"]+)"/
 
@@ -76,8 +77,8 @@ def build(key)
   begin
     db = SQLite3::Database.new TORRENT_DB_PATH
   rescue SQLite3::Exception => e 
-    puts "Exception occurred"
-    puts e
+    puts "Database open failed: #{e}"
+    exit 1
   end
 
   keyword = key
