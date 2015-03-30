@@ -1,0 +1,191 @@
+#!/usr/bin/env ruby
+# A script to fetch today's torrent dump from kickass.to
+
+require 'zlib'
+require 'open-uri'
+require 'sqlite3'
+require 'colorize'
+
+TORRENT_DB_PATH = "#{ENV["HOME"]}/.torrents.db"
+
+class Torrent
+  # hash, name, genre, link, torrent
+  attr_accessor :name, :magnet, :link, :genre, :torrent
+ 
+  def initialize(line)
+    begin
+      parts = line.split("|")
+      @name = parts[1].strip
+      @magnet = "magnet:?xt=urn:btih:#{parts[0].strip}"
+      @genre = parts[2].strip
+      @link = parts[3].strip
+      @torrent = parts[4].strip
+    rescue Exception => e
+      print "Skipped: "
+      puts line
+    end
+  end
+end
+ 
+def parse_torrents(link)
+  open(link) do |f|
+    gz = open(f).read
+    torrents = []
+    gz.each_line do |line|
+      next if line.strip.size == 0
+      torrents << Torrent.new(line)
+    end
+    gz.close
+    torrents
+  end
+end
+
+def parse_image(row)
+  regex = /\s?(\w+-\d+)\s?/i
+  bango = nil
+  name = row[0]
+  name.scan(regex) do |s|
+    bango = s[0]
+  end
+
+  image_link = nil
+  if bango
+    link = "http://www.javlibrary.com/cn/vl_searchbyid.php?keyword=#{bango}"
+    begin
+      content = open(link).read
+    rescue Exception => e
+      STDERR.puts "Skip #{bango}."
+    end
+    iregex = /img id="video_jacket_img" src="([^"]+)"/
+
+    content.scan(iregex) do |s|
+      image_link = s[0]
+      puts "<tr><td><img src='#{image_link}'></td></tr>"
+      puts "<tr><td>#{row[0]}</td></tr>"
+      puts "<tr><td><a href='#{row[1]}'>Magnet</a></td></tr>"
+    end
+  end
+end
+
+def build(key)
+  unless File.exists? TORRENT_DB_PATH
+    puts "Database file not exists. Exit."
+    exit 1
+  end
+  
+  begin
+    db = SQLite3::Database.new TORRENT_DB_PATH
+  rescue SQLite3::Exception => e 
+    puts "Exception occurred"
+    puts e
+  end
+
+  keyword = key
+  keyword ||= "JAV"
+
+  puts %Q[
+<!DOCTYPE html>
+<html>
+<head><title>Torrents</title>
+</head>
+<body>]
+  puts "<table>"
+  db.execute "SELECT name, magnet FROM Torrents WHERE NAME LIKE '%#{keyword}%'" do |row|
+    parse_image row
+  end
+  puts "</table>"
+  puts %Q[
+</body>
+</html>]
+end
+ 
+def save(gz)
+  begin
+    db = SQLite3::Database.new TORRENT_DB_PATH
+    db.execute "CREATE TABLE IF NOT EXISTS Torrents(id INTEGER PRIMARY KEY AUTOINCREMENT, 
+        name TEXT, magnet TEXT, link TEXT, genre TEXT, torrent TEXT)"
+  rescue SQLite3::Exception => e 
+    puts "Exception occurred"
+    puts e
+    exit 1
+  end
+
+  fp = nil
+  if gz =~ /http.*/
+    print "Downloading data from kickass.to..."
+  end
+  begin
+    fp = open gz
+  rescue Exception => e
+    puts "Failed".red
+    exit 1
+  end
+  puts "done.".green
+  puts "Processing database..."
+  Zlib::GzipReader.new(fp).readlines.each_with_index do |line, index|
+    next if line.strip.size == 0
+    tr = Torrent.new(line)
+
+    shouldSelect = true
+    if shouldSelect
+      stmt = db.prepare "SELECT * FROM Torrents WHERE magnet=?"
+      stmt.bind_params tr.magnet
+      rs = stmt.execute
+      if rs.next
+        puts "Skip...#{index}!".yellow
+        stmt.close
+        next
+      else
+        shouldSelect = false
+      end
+      stmt.close
+    end
+    
+    puts "Inserting...#{index}"
+    stm = db.prepare "INSERT INTO Torrents (name, magnet, link, genre, torrent) VALUES(?, ?, ?, ?, ?)"
+    stm.bind_params tr.name, tr.magnet, tr.link, tr.genre, tr.torrent
+    stm.execute
+    stm.close
+    pus "All done.".green
+  end
+  db.close
+end
+
+def usage
+  script = File.basename(__FILE__, '.rb')
+  puts "Usage:"
+  puts
+  puts "my #{script} save | build [options]"
+  puts "    save: you can specific a local path for gzipped file."
+  puts "   build: you can specific a keyword, like 'jav'. Default: 'jav censored'."
+end
+
+def main
+  if ARGV.size < 1
+    usage
+    exit 0
+  else
+    unless (ARGV[0] == "build" or ARGV[0] == "save")
+      usage
+      exit 1
+    end
+
+    if ARGV[0] == "save"
+      if ARGV.size == 1 
+        gz = "https://kickass.to/hourlydump.txt.gz"
+      else
+        gz = ARGV[1]
+      end
+      save gz
+    else
+      if ARGV.size == 1
+        keyword = "JAV CENSORED"
+      else
+        keyword = ARGV[1]
+      end
+      build keyword
+    end
+  end
+end
+
+main

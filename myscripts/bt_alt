@@ -31,19 +31,23 @@ else
   puts "No Proxy "
 end
 
+class CookieFetchError < StandardError;end
+
 # 解析Cookie
 print "Parsing Cookie...".magenta
 cookie_regex = /document\.cookie='([^']+?)'/
-doc_text = open(uri, options).read.encode("utf-8", "gb18030")
+doc_text = open(uri, options).read
 if doc_text =~ cookie_regex
   doc_text.scan(cookie_regex) do |match|
-    cookie = match[0]
-    if cookie.nil? or cookie.size = 0
-      raise "Cookie fetch failed. Site may updated!!!"
+    cookie = match[0].split(";").first
+    if cookie.nil? or cookie.size == 0
+      raise CookieFetchError.new("Cookie fetch failed. Site may updated!!!") 
     end
     options["Cookie"] = cookie
     puts "done.".green
   end
+else
+  puts "failed.".red
 end
 
 #open uri, options
