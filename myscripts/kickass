@@ -147,8 +147,8 @@ def save(gz)
     stm.bind_params tr.name, tr.magnet, tr.link, tr.genre, tr.torrent
     stm.execute
     stm.close
-    pus "All done.".green
   end
+  puts "All done.".green
   db.close
 end
 
