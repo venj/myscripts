@@ -225,6 +225,8 @@ def usage
   puts "my #{script} save | build [options]"
   puts "    save: you can specific a local path for gzipped file."
   puts "   build: you can specific a keyword, like 'jav'. Default: 'jav censored'."
+  puts "    stat: show torrents count statistics."
+  puts "  search: a simple search interface for any 'single' keyword (like a bango for video)."
 
   exit 0
 end

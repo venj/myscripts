@@ -17,7 +17,6 @@ cd script_dir do
 end
 
 cd dest_dir do
-  `git pull`
   cd "myscripts" do
     dest_arr = Dir["*"]
     (dest_arr - scripts_arr).each { |f| File.unlink f } # Deleted deprecated script.
