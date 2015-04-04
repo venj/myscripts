@@ -129,7 +129,7 @@ def save(gz)
       stmt.bind_params tr.magnet
       rs = stmt.execute
       if rs.next
-        puts "Skip...#{index}!".yellow
+        puts "Skip...#{index}!".yellow if index % 100 == 0
         stmt.close
         next
       else
