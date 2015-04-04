@@ -161,31 +161,21 @@ def show_stat
     exit 1
   end
 
-  total = 0
-  db.execute "SELECT COUNT(*) FROM Torrents" do |row|
-    total = row.first.to_s
-  end
+  search_conditions = [
+    ["Total", "name", ""],
+    ["XXX", "genre", "XXX"],
+    ["JAV", "name", "JAV"],
+    ["JAV Censored" ,"name", "JAV CENSORED"],
+  ]
 
-  xxx = 0
-  db.execute "SELECT COUNT(*) FROM Torrents WHERE `genre` LIKE '%XXX%'" do |row|
-    xxx = row.first.to_s
+  puts "Torrent database statistics:"
+  search_conditions.each do |arr|
+    val = 0
+    db.execute "SELECT COUNT(*) FROM Torrents WHERE `#{arr[1]}` LIKE '%#{arr[2]}%'" do |row|
+      val = row.first.to_s
+      printf "%15s torrents: %d\n", arr[0], val
+    end
   end
-
-  jav = 0
-  db.execute "SELECT COUNT(*) FROM Torrents WHERE `name` LIKE '%JAV%'" do |row|
-    jav = row.first.to_s
-  end
-
-  javc = 0
-  db.execute "SELECT COUNT(*) FROM Torrents WHERE `name` LIKE '%JAV CENSORED%'" do |row|
-    javc = row.first.to_s
-  end
-  
-  puts "Torrent database statistics:"  
-  puts "       Total torrents: #{total}"
-  puts "         XXX torrents: #{xxx}"
-  puts "         JAV torrents: #{jav}"
-  puts "JAV Censored torrents: #{javc}"
 
   db.close
 end
