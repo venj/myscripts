@@ -6,7 +6,9 @@ require 'open-uri'
 require 'sqlite3'
 require 'colorize'
 
-TORRENT_DB_PATH = "#{ENV["HOME"]}/.torrents.db"
+TORRENT_DB_PATH = "#{ENV['HOME']}/.torrents.db"
+
+trap('INT') { exit 0 }
 
 class Torrent
   # hash, name, genre, link, torrent
@@ -14,9 +16,9 @@ class Torrent
  
   def initialize(line)
     begin
-      parts = line.split("|")
+      parts = line.split('|')
       @name = parts[1].strip
-      @magnet = "magnet:?xt=urn:btih:#{parts[0].strip}"
+      @magnet = "magnet:?xt=urn:bth:#{parts[0].strip}"
       @genre = parts[2].strip
       @link = parts[3].strip
       @torrent = parts[4].strip
@@ -41,7 +43,7 @@ def parse_torrents(link)
 end
 
 def parse_image(name)
-  regex = /\s?([a-zA-Z]{2,5}}-\d{2-5}})\s?/i
+  regex = /\s?([a-zA-Z]{2,5}-\d{2,5})\s?/i
   bango = nil
   name.scan(regex) do |s|
     bango = s[0]
@@ -52,12 +54,16 @@ def parse_image(name)
     begin
       content = open(link).read
     rescue Exception => e
-      STDERR.puts "Skip #{bango}."
+      STDERR.puts "Skip #{bango}.\n#{e.message}"
       return
     end
 
     iregex = /img id="video_jacket_img" src="([^"]+)"/
-    content.scan(iregex)[0].first
+    img = ""
+    content.scan(iregex) do |m|
+      img = m[0]
+    end
+    img
   end
 end
 
@@ -75,7 +81,7 @@ def build(key)
   end
 
   keyword = key
-  keyword ||= "JAV"
+  keyword ||= "JAV Censored"
 
   puts %Q[
 <!DOCTYPE html>
@@ -84,8 +90,14 @@ def build(key)
 </head>
 <body>]
   puts "<table>"
-  db.execute "SELECT name, magnet FROM Torrents WHERE `name` LIKE '%#{keyword}%'" do |row|
+  db.execute "SELECT name, magnet FROM Torrents WHERE `name` LIKE '%#{keyword}%' ORDER BY `id` DESC" do |row|
+    STDERR.print "Parsing #{row[0]}..."
     image_link = parse_image row[0]
+    if image_link == ""
+      STDERR.puts "not found.".yellow
+    else
+      STDERR.puts "done.".green
+    end
     puts "<tr><td><img src='#{image_link}'></td></tr>"
     puts "<tr><td>#{row[0]}</td></tr>"
     puts "<tr><td><a href='#{row[1]}'>Magnet</a></td></tr>"
@@ -165,10 +177,11 @@ def show_stat
     ["Total", "name", ""],
     ["XXX", "genre", "XXX"],
     ["JAV", "name", "JAV"],
-    ["JAV Censored" ,"name", "JAV CENSORED"],
+    ['JAV Censored',"name", "JAV CENSORED"],
   ]
 
   puts "Torrent database statistics:"
+  printf "%24s: %.2f MB\n", "Database file size", File.open(TORRENT_DB_PATH).size / (1024 * 1024.0)
   search_conditions.each do |arr|
     val = 0
     db.execute "SELECT COUNT(*) FROM Torrents WHERE `#{arr[1]}` LIKE '%#{arr[2]}%'" do |row|
@@ -182,7 +195,7 @@ end
 
 def search(keyword)
   unless File.exists? TORRENT_DB_PATH
-    puts "Database file not exists. Exit."
+    puts 'Database file not exists. Exit.'
     exit 1
   end
   
