@@ -137,7 +137,7 @@ def save(gz)
 
     shouldSelect = true
     if shouldSelect
-      stmt = db.prepare "SELECT * FROM Torrents WHERE magnet=?"
+      stmt = db.prepare "SELECT magnet FROM Torrents WHERE magnet=?"
       stmt.bind_params tr.magnet
       rs = stmt.execute
       if rs.next
@@ -150,7 +150,7 @@ def save(gz)
       stmt.close
     end
     
-    puts "Inserting...#{index}"
+    puts "Inserting...#{index}" if index % 100 == 0
     stm = db.prepare "INSERT INTO Torrents (name, magnet, link, genre, torrent) VALUES(?, ?, ?, ?, ?)"
     stm.bind_params tr.name, tr.magnet, tr.link, tr.genre, tr.torrent
     stm.execute
