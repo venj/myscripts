@@ -6,9 +6,7 @@ require 'open-uri'
 require 'sqlite3'
 require 'colorize'
 
-TORRENT_DB_PATH = "#{ENV['HOME']}/.torrents.db"
-
-trap('INT') { exit 0 }
+TORRENT_DB_PATH = "#{ENV["HOME"]}/.torrents.db"
 
 class Torrent
   # hash, name, genre, link, torrent
@@ -16,9 +14,9 @@ class Torrent
  
   def initialize(line)
     begin
-      parts = line.split('|')
+      parts = line.split("|")
       @name = parts[1].strip
-      @magnet = "magnet:?xt=urn:bth:#{parts[0].strip}"
+      @magnet = "magnet:?xt=urn:btih:#{parts[0].strip}"
       @genre = parts[2].strip
       @link = parts[3].strip
       @torrent = parts[4].strip
@@ -42,28 +40,31 @@ def parse_torrents(link)
   end
 end
 
-def parse_image(name)
-  regex = /\s?([a-zA-Z]{2,5}-\d{2,5})\s?/i
+def parse_image(row)
+  regex = /\s?(\w+-\d+)\s?/i
   bango = nil
+  name = row[0]
   name.scan(regex) do |s|
     bango = s[0]
   end
+
   image_link = nil
   if bango
     link = "http://www.javlibrary.com/cn/vl_searchbyid.php?keyword=#{bango}"
     begin
       content = open(link).read
     rescue Exception => e
-      STDERR.puts "Skip #{bango}.\n#{e.message}"
+      STDERR.puts "Skip #{bango}."
       return
     end
-
     iregex = /img id="video_jacket_img" src="([^"]+)"/
-    img = ""
-    content.scan(iregex) do |m|
-      img = m[0]
+
+    content.scan(iregex) do |s|
+      image_link = s[0]
+      puts "<tr><td><img src='#{image_link}'></td></tr>"
+      puts "<tr><td>#{row[0]}</td></tr>"
+      puts "<tr><td><a href='#{row[1]}'>Magnet</a></td></tr>"
     end
-    img
   end
 end
 
@@ -81,7 +82,7 @@ def build(key)
   end
 
   keyword = key
-  keyword ||= "JAV Censored"
+  keyword ||= "JAV"
 
   puts %Q[
 <!DOCTYPE html>
@@ -90,17 +91,8 @@ def build(key)
 </head>
 <body>]
   puts "<table>"
-  db.execute "SELECT name, magnet FROM Torrents WHERE `name` LIKE '%#{keyword}%' ORDER BY `id` DESC" do |row|
-    STDERR.print "Parsing #{row[0]}..."
-    image_link = parse_image row[0]
-    if image_link == ""
-      STDERR.puts "not found.".yellow
-    else
-      STDERR.puts "done.".green
-    end
-    puts "<tr><td><img src='#{image_link}'></td></tr>"
-    puts "<tr><td>#{row[0]}</td></tr>"
-    puts "<tr><td><a href='#{row[1]}'>Magnet</a></td></tr>"
+  db.execute "SELECT name, magnet FROM Torrents WHERE NAME LIKE '%#{keyword}%'" do |row|
+    parse_image row
   end
   puts "</table>"
   puts %Q[
@@ -137,11 +129,11 @@ def save(gz)
 
     shouldSelect = true
     if shouldSelect
-      stmt = db.prepare "SELECT magnet FROM Torrents WHERE magnet=?"
+      stmt = db.prepare "SELECT * FROM Torrents WHERE magnet=?"
       stmt.bind_params tr.magnet
       rs = stmt.execute
       if rs.next
-        puts "Skip...#{index}!".yellow if index % 100 == 0
+        puts "Skip...#{index}!".yellow
         stmt.close
         next
       else
@@ -150,7 +142,7 @@ def save(gz)
       stmt.close
     end
     
-    puts "Inserting...#{index}" if index % 100 == 0
+    puts "Inserting...#{index}"
     stm = db.prepare "INSERT INTO Torrents (name, magnet, link, genre, torrent) VALUES(?, ?, ?, ?, ?)"
     stm.bind_params tr.name, tr.magnet, tr.link, tr.genre, tr.torrent
     stm.execute
@@ -160,67 +152,6 @@ def save(gz)
   db.close
 end
 
-def show_stat
-  unless File.exists? TORRENT_DB_PATH
-    puts "Database file not exists. Exit."
-    exit 1
-  end
-  
-  begin
-    db = SQLite3::Database.new TORRENT_DB_PATH
-  rescue SQLite3::Exception => e 
-    puts "Database open failed: #{e}"
-    exit 1
-  end
-
-  search_conditions = [
-    ["Total", "name", ""],
-    ["XXX", "genre", "XXX"],
-    ["JAV", "name", "JAV"],
-    ['JAV Censored',"name", "JAV CENSORED"],
-  ]
-
-  puts "Torrent database statistics:"
-  printf "%24s: %.2f MB\n", "Database file size", File.open(TORRENT_DB_PATH).size / (1024 * 1024.0)
-  search_conditions.each do |arr|
-    val = 0
-    db.execute "SELECT COUNT(*) FROM Torrents WHERE `#{arr[1]}` LIKE '%#{arr[2]}%'" do |row|
-      val = row.first.to_s
-      printf "%15s torrents: %d\n", arr[0], val
-    end
-  end
-
-  db.close
-end
-
-def search(keyword)
-  unless File.exists? TORRENT_DB_PATH
-    puts 'Database file not exists. Exit.'
-    exit 1
-  end
-  
-  begin
-    db = SQLite3::Database.new TORRENT_DB_PATH
-  rescue SQLite3::Exception => e 
-    puts "Database open failed: #{e}"
-    exit 1
-  end
-
-  db.execute "SELECT name, magnet FROM Torrents WHERE `name` LIKE '%#{keyword}%'" do |row|
-    puts "Found torrent: #{row.first}"
-    print "Parsing image..."
-    image = parse_image row[0]
-    if image.nil?
-      puts "not found.".yellow
-    else
-      puts "done".green
-      puts " Image: #{image}"
-    end
-    puts "Magnet: #{row.last}"
-    puts
-  end
-end
-
 def usage
   script = File.basename(__FILE__, '.rb')
   puts "Usage:"
@@ -228,18 +159,16 @@ def usage
   puts "my #{script} save | build [options]"
   puts "    save: you can specific a local path for gzipped file."
   puts "   build: you can specific a keyword, like 'jav'. Default: 'jav censored'."
-  puts "    stat: show torrents count statistics."
-  puts "  search: a simple search interface for any 'single' keyword (like a bango for video)."
-
-  exit 0
 end
 
 def main
   if ARGV.size < 1
     usage
+    exit 0
   else
-    unless (["build", "save", "stat", "search"].include?(ARGV[0]))
+    unless (ARGV[0] == "build" or ARGV[0] == "save")
       usage
+      exit 1
     end
 
     if ARGV[0] == "save"
@@ -249,20 +178,13 @@ def main
         gz = ARGV[1]
       end
       save gz
-    elsif ARGV[0] == "build"
+    else
       if ARGV.size == 1
         keyword = "JAV CENSORED"
       else
         keyword = ARGV[1]
       end
       build keyword
-    elsif ARGV[0] == "stat"
-      show_stat
-    elsif ARGV[0] == "search"
-      usage if ARGV.size == 1 
-      search ARGV[1]
-    else
-      usage
     end
   end
 end

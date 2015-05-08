@@ -5,6 +5,7 @@
 
 require "shellwords"
 require "FileUtils"
+require "base32"
 require "colorize"
 include FileUtils
 
@@ -214,6 +215,18 @@ elsif (argv.first == "magnet" && argv.size > 1)
   argv.shift
   argv.each do |arg|
     h = `#{LX_HOME}/lixian_hash.py --info-hash #{arg}`.split(" ")[0]
+    puts "magnet:?xt=urn:btih:#{h}"
+  end
+elsif (argv.first == "decode" && argv.size > 1)
+  argv.shift
+  argv.each do |arg|
+    h = arg =~ /[G-Z]+/i ? Base32.decode(arg).unpack("H*").first : arg
+    puts "magnet:?xt=urn:btih:#{h}"
+  end
+elsif (argv.first == "encode" && argv.size > 1)
+  argv.shift
+  argv.each do |arg|
+    h = arg =~ /[G-Z]+/i ? arg : Base32.encode([arg].pack("H40"))
     puts "magnet:?xt=urn:btih:#{h}"
   end
 elsif (argv.first == "open" || argv.first == "o")
