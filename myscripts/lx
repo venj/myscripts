@@ -209,12 +209,12 @@ elsif (argv.first == "dnd" && argv.size > 1)
 elsif (argv.first == "hash" && argv.size > 1)
   argv.shift
   argv.each do |arg|
-    puts `#{LX_HOME}/lixian_hash.py --info-hash #{arg}`.split(" ")[0]
+    puts `#{LX_HOME}/lixian_hash.py --info-hash #{arg.shellescape}`.split(" ")[0]
   end
 elsif (argv.first == "magnet" && argv.size > 1)
   argv.shift
   argv.each do |arg|
-    h = `#{LX_HOME}/lixian_hash.py --info-hash #{arg}`.split(" ")[0]
+    h = `#{LX_HOME}/lixian_hash.py --info-hash #{arg.shellescape}`.split(" ")[0]
     puts "magnet:?xt=urn:btih:#{h}"
   end
 elsif (argv.first == "decode" && argv.size > 1)
