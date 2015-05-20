@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
-# Another script to fetch torrents from other site. Written by Rainling.
 # encoding: utf-8
+# Another script to fetch torrents from other site. Written by Rainling.
 
 require 'rubygems'
 require 'open-uri'
