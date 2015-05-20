@@ -1,5 +1,0 @@
-#!/usr/bin/env ruby
-# Normalize filename download from the web.
-# encoding = UTF-8
-
-puts ARGV.join(" ").split(/\.|-|\s+|_/).map { |e| e.strip.capitalize }.reject { |e| e.strip.size == 0 }.join(" ")
