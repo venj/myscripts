@@ -20,7 +20,7 @@ class Torrent
     begin
       parts = line.split('|')
       @name = parts[1].strip
-      @magnet = "magnet:?xt=urn:bth:#{parts[0].strip}"
+      @magnet = "magnet:?xt=urn:btih:#{parts[0].strip}"
       @genre = parts[2].strip
       @link = parts[3].strip
       @torrent = parts[4].strip
