@@ -98,7 +98,7 @@ def build(key)
 </head>
 <body>]
   puts "<table>"
-  db.execute "SELECT name, magnet FROM Torrents WHERE `name` LIKE '%#{keyword}%' ORDER BY `id` DESC" do |row|
+  db.execute "SELECT name, magnet FROM torrents WHERE `name` LIKE '%#{keyword}%' ORDER BY `id` DESC" do |row|
     STDERR.print "Parsing #{row[0]}..."
     image_link = parse_image row[0]
     if image_link == ""
@@ -119,7 +119,7 @@ end
 def save(gz)
   begin
     db = SQLite3::Database.new TORRENT_DB_PATH
-    db.execute "CREATE TABLE IF NOT EXISTS Torrents(id INTEGER PRIMARY KEY AUTOINCREMENT, 
+    db.execute "CREATE TABLE IF NOT EXISTS torrents(id INTEGER PRIMARY KEY AUTOINCREMENT, 
         name TEXT, magnet TEXT, link TEXT, genre TEXT, torrent TEXT, size INTEGER, category_id INTEGER, 
         file_count INTEGER, seeders INTEGER, leechers INTEGER, upload_date DATETIME)"
     db.execute "CREATE INDEX IF NOT EXISTS magnet_index on torrents(\"magnet\")"
@@ -150,7 +150,6 @@ def save(gz)
       stmt = db.prepare "SELECT magnet FROM Torrents WHERE magnet=?"
       stmt.bind_params tr.magnet
       rs = stmt.execute
-      row = rs.next
       if rs.next
         puts "Skip...#{index}!".yellow if index % 100 == 0
         stmt.close
@@ -163,7 +162,7 @@ def save(gz)
     
     puts "Inserting...#{index}" if index % 100 == 0
     # :size, :category_id, :file_count, :seeders, :leechers, :upload_date
-    stm = db.prepare "INSERT INTO Torrents (name, magnet, link, genre, torrent, size, category_id, file_count, seeders, leechers, upload_date) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+    stm = db.prepare "INSERT INTO torrents (name, magnet, link, genre, torrent, size, category_id, file_count, seeders, leechers, upload_date) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
     stm.bind_params tr.name, tr.magnet, tr.link, tr.genre, tr.torrent, tr.size, tr.category_id, tr.file_count, tr.seeders, tr.leechers, tr.upload_date
     stm.execute
     stm.close
@@ -196,7 +195,7 @@ def show_stat
   printf "%24s: %.2f MB\n", "Database file size", File.open(TORRENT_DB_PATH).size / (1024 * 1024.0)
   search_conditions.each do |arr|
     val = 0
-    db.execute "SELECT COUNT(*) FROM Torrents WHERE `#{arr[1]}` LIKE '%#{arr[2]}%'" do |row|
+    db.execute "SELECT COUNT(*) FROM torrents WHERE `#{arr[1]}` LIKE '%#{arr[2]}%'" do |row|
       val = row.first.to_s
       printf "%15s torrents: %d\n", arr[0], val
     end
@@ -218,7 +217,7 @@ def search(keyword)
     exit 1
   end
 
-  db.execute "SELECT name, magnet FROM Torrents WHERE `name` LIKE '%#{keyword}%'" do |row|
+  db.execute "SELECT name, magnet FROM torrents WHERE `name` LIKE '%#{keyword}%'" do |row|
     puts "Found torrent: #{row.first}"
     print "Parsing image..."
     image = parse_image row[0]
@@ -231,6 +230,34 @@ def search(keyword)
     puts "Magnet: #{row.last}"
     puts
   end
+end
+
+def show_sql
+  system("sqlite3 #{TORRENT_DB_PATH}")
+end
+
+def show_trlink(magnet)
+  unless File.exists? TORRENT_DB_PATH
+    puts "Database file not exists. Exit."
+    exit 1
+  end
+  
+  begin
+    db = SQLite3::Database.new TORRENT_DB_PATH
+  rescue SQLite3::Exception => e 
+    puts "Database open failed: #{e}"
+    exit 1
+  end
+
+  puts "Torrent download links for '#{magnet}':"
+  puts
+  db.execute "SELECT name, magnet, torrent FROM torrents WHERE magnet LIKE '%#{magnet}%'" do |row|
+    puts row[0]
+    puts row[1]
+    puts row[2]
+    puts
+  end
+  db.close
 end
 
 def usage
@@ -250,7 +277,7 @@ def main
   if ARGV.size < 1
     usage
   else
-    unless (["build", "save", "stat", "search"].include?(ARGV[0]))
+    unless (["build", "save", "stat", "search", "sql", "tr"].include?(ARGV[0]))
       usage
     end
 
@@ -268,8 +295,17 @@ def main
         keyword = ARGV[1]
       end
       build keyword
+    elsif ARGV[0] == "sql"
+      show_sql
     elsif ARGV[0] == "stat"
       show_stat
+    elsif ARGV[0] == "tr"
+      if ARGV.size == 1
+        puts "Please specify ( part of ) a magnet."
+      else
+        magnet = ARGV[1]
+      end
+      show_trlink(magnet.strip)
     elsif ARGV[0] == "search"
       usage if ARGV.size == 1 
       search ARGV[1]
