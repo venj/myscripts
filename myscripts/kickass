@@ -14,7 +14,7 @@ class Torrent
   # hash, name, genre, link, torrent
   attr_accessor :name, :magnet, :link, :genre, :torrent, 
                 :size, :category_id, :file_count, :seeders, :leechers,
-                :upload_date
+                :upload_date, :verified
  
   def initialize(line)
     begin
@@ -30,9 +30,9 @@ class Torrent
       @seeders = parts[8].strip.to_i
       @leechers = parts[9].strip.to_i
       @upload_date = parts[10].strip.to_i
+      @verified = parts[11].strip.to_i
     rescue Exception => e
       print "Skipped: "
-      puts line
     end
   end
 end
@@ -145,25 +145,23 @@ def save(gz)
     next if line.strip.size == 0
     tr = Torrent.new(line)
 
-    shouldSelect = true
-    if shouldSelect
-      stmt = db.prepare "SELECT magnet FROM Torrents WHERE magnet=?"
-      stmt.bind_params tr.magnet
-      rs = stmt.execute
-      if rs.next
-        puts "Skip...#{index}!".yellow if index % 100 == 0
-        stmt.close
-        next
-      else
-        shouldSelect = false
-      end
+    stmt = db.prepare "SELECT id FROM Torrents WHERE magnet=?"
+    stmt.bind_params tr.magnet
+    rs = stmt.execute
+    if row = rs.next
+      tid = row[0]
+      db.execute "UPDATE torrents SET seeders='#{tr.seeders}', leechers='#{tr.leechers}', verified='#{tr.verified}' WHERE id='#{tid}'"
+      puts "Updated...#{index}!".yellow if index % 100 == 0
+      stmt.close
+      next
+    else
       stmt.close
     end
     
     puts "Inserting...#{index}" if index % 100 == 0
     # :size, :category_id, :file_count, :seeders, :leechers, :upload_date
-    stm = db.prepare "INSERT INTO torrents (name, magnet, link, genre, torrent, size, category_id, file_count, seeders, leechers, upload_date) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
-    stm.bind_params tr.name, tr.magnet, tr.link, tr.genre, tr.torrent, tr.size, tr.category_id, tr.file_count, tr.seeders, tr.leechers, tr.upload_date
+    stm = db.prepare "INSERT INTO torrents (name, magnet, link, genre, torrent, size, category_id, file_count, seeders, leechers, upload_date, verified) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+    stm.bind_params tr.name, tr.magnet, tr.link, tr.genre, tr.torrent, tr.size, tr.category_id, tr.file_count, tr.seeders, tr.leechers, tr.upload_date, tr.verified
     stm.execute
     stm.close
   end
