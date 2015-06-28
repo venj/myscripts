@@ -11,4 +11,4 @@ usage if ARGV[0].nil?
 usage if ARGV.size != 2
 usage if ARGV[0].to_i <= 0
 
-system("diskutil erasevolume HFS+ \"#{ARGV[1]}\" `hdiutil attach -nomount ram://#{2000000 * ARGV[0].to_i}`")
+system("diskutil erasevolume HFS+ \"#{ARGV[1]}\" `hdiutil attach -nomount ram://#{2048 * ARGV[0].to_i}`")
