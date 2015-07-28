@@ -16,16 +16,15 @@ You can use following install script to install and upgrade:
 # Update script for users.
 
 cdir=$(pwd)
-curl -sLO https://github.com/venj/myscripts/zipball/master 
-unzip -q master
-cd venj-myscripts-*
+curl -sLO https://github.com/venj/myscripts/archive/master.zip
+unzip -q master.zip
+cd myscripts-master
 adir=$(basename $(pwd))
 cp my /usr/local/bin/my
-mkdir -p /usr/local/bin/myscripts
-cp -rf myscripts /usr/local/bin/myscripts
+cp -rf myscripts /usr/local/bin
 cd $cdir
 rm -rf $adir
-rm master
+rm master.zip
 ```
 
 ## Usage
@@ -150,16 +149,15 @@ Fork me if you really decide to use it for your own.
 # Update script for users.
 
 cdir=$(pwd)
-curl -sLO https://github.com/venj/myscripts/zipball/master 
-unzip -q master
-cd venj-myscripts-*
+curl -sLO https://github.com/venj/myscripts/archive/master.zip
+unzip -q master.zip
+cd myscripts-master
 adir=$(basename $(pwd))
 cp my /usr/local/bin/my
-mkdir -p /usr/local/bin/myscripts
-cp -rf myscripts /usr/local/bin/myscripts
+cp -rf myscripts /usr/local/bin
 cd $cdir
 rm -rf $adir
-rm master
+rm master.zip
 ```
 
 ## 使用方法

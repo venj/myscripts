@@ -2,12 +2,12 @@
 # Update script for users.
 
 cdir=$(pwd)
-curl -sLO https://codeload.github.com/venj/myscripts/zip/master
-unzip -q master
+curl -sLO https://github.com/venj/myscripts/archive/master.zip
+unzip -q master.zip
 cd myscripts-master
 adir=$(basename $(pwd))
-cp -f my /usr/local/bin/my
-mkdir -p /usr/local/bin/myscripts
-cp -f myscripts/* /usr/local/bin/myscripts/
+cp my /usr/local/bin/my
+cp -rf myscripts /usr/local/bin
 cd $cdir
 rm -rf $adir
+rm master.zip

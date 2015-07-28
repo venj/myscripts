@@ -99,7 +99,10 @@ end
 argv = preprocess(ARGV)
 
 if !File.directory?(LX_HOME)
-  puts "Please download Xunlei-lixian from: https://github.com/iambus/xunlei-lixian first."
+  puts "xunlei-lixian not found.".yellow
+  puts "Downloading xunlei-lixian..."
+  system "git clone https://github.com/iambus/xunlei-lixian.git #{LX_HOME}"
+  puts "Done. Please run the command again.".green
   exit 1
 elsif ["update", "--update", "-u", "u"].index(argv[0])
   cd LX_HOME do
@@ -111,29 +114,29 @@ elsif argv.last == "help" || argv.size == 0
   output += <<END
 
 More commands
- h		same to help
- l		same to list
- a		same to add
- d		same to download
- o		same to open
- f		same to first
- u		upgrade lixian app (or use update, --update, -u)
- ln		list downloads with number, start from 0. same to "list --number" 
- la		same to last
- fN		download first N tasks
- del		same to delete
- delN		delete first N tasks
- dnd		download task and delete task after download *
- hash		calculate hash for torrent files
+ h    same to help
+ l    same to list
+ a    same to add
+ d    same to download
+ o    same to open
+ f    same to first
+ u    upgrade lixian app (or use update, --update, -u)
+ ln   list downloads with number, start from 0. same to "list --number" 
+ la   same to last
+ fN   download first N tasks
+ del    same to delete
+ delN   delete first N tasks
+ dnd    download task and delete task after download *
+ hash   calculate hash for torrent files
  magnet show magnet link for torrent files
- open		open Xunlei Lixian website
- first		download the first task
- last		download the last task
- dfirst		delete the first task (or df)
- dlast		delete the last task (or dla)
+ open   open Xunlei Lixian website
+ first    download the first task
+ last   download the last task
+ dfirst   delete the first task (or df)
+ dlast    delete the last task (or dla)
 
 More options for download:
- --clean	delete task after download *
+ --clean  delete task after download *
 
 * CAUTION: dnd or --clean option has the risk of accidentally
            delete un-downloaded lixian task!
